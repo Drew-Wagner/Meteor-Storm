@@ -33,6 +33,9 @@ class GameOverState(object):
 
     def update(self):
         if self.active:
+            screen.blit(backgroundObj, (0,0))
+
+            # Finish asteroid explosions
             for a in self.master.roids:
                 a.vely = 20
                 a.draw()
@@ -76,11 +79,16 @@ class PlayingState(object):
             if keys[K_SPACE] or keys[K_f]:
                self.master.player.fire()
 
-           # Update entities
+            # Draw background
+            screen.blit(backgroundObj, (0,0))
+
+            # Update and draw entities
             for b in self.master.bolts:
                 b.update()
             for a in self.master.roids:
                 a.update()
+
+            # Update and draw player
             self.master.player.update()
 
             # Render poitns
@@ -259,17 +267,15 @@ roidSprite1 = pygame.transform.scale(roidSprite1, (25,25))
 manager = GameManager()
 
 
+# Mainloop
 while True:
-    screen.blit(backgroundObj, (0,0))
-
+    
     manager.update()
 
     for event in pygame.event.get():
         if event.type == QUIT:
             pygame.quit()
             sys.exit()
-
-    
 
     pygame.display.flip()
     fpsClock.tick(FPS)
