@@ -2,6 +2,10 @@ import pygame, sys, random
 
 from pygame.locals import *
 
+states = {"OPENING": 0,
+          "GAMEPLAY": 1,
+          "GAMEOVER": 2}
+
 WIDTH = 375
 HEIGHT = 600
 FPS = 30
@@ -14,15 +18,18 @@ class GameManager(object):
         self.bolts = []
         self.roids = []
 
+        self.state = states["GAMEPLAY"]
+
         self.player = Player(self)
         
         self.newroid = 0
+        self.roidrate = 1000 # New asteroid every 1000 milliseconds
         
     def update(self):
         # Asteroid generation
         if self.newroid == 0:
             Asteroid(self, random.randint(0, 14)*25, random.randint(-5,5), random.randint(2,8))
-            self.newroid = 1000 # New asteroid every 1000 milliseconds
+            self.newroid = self.roidrate
         # Player movement
         keys = pygame.key.get_pressed()
         if keys[K_ESCAPE]:
@@ -57,6 +64,7 @@ class Player(object):
         self.gm = gm
         self.rect = pygame.Rect(150,513, 75, 75)
         self.canfire = 0
+        self.explode = False
 
     def move(self, x, y):
         self.rect = self.rect.move(x, y)
@@ -73,6 +81,13 @@ class Player(object):
     def update(self):
         self.canfire = max(self.canfire-1, 0)
         self.draw()
+        if self.explode:
+            dt = pygame.time.get_ticks() - self.explode
+            pygame.draw.circle(screen, (255,127,31), self.rect.center, dt/2)
+            if dt > 100:
+                self.explode = False
+                print "You died :("
+                self.gm.state = states["GAMEOVER"]
 
     def draw(self):
         if pygame.time.get_ticks() % 200 < 100:
@@ -120,11 +135,19 @@ class Asteroid(object):
             self.gm.points -= 50 # Take away points for missing asteroid
             self.gm.roids.remove(self)
 
-        for b in self.gm.bolts:
-            if self.rect.colliderect(b.rect) and self.explode == False:
-                self.explode = pygame.time.get_ticks()
-                self.gm.bolts.remove(b)
-                self.gm.points += 5
+        for e in self.gm.bolts + self.gm.roids + [self.gm.player]:
+            if type(e) == Bolt:
+                if self.rect.colliderect(e.rect) and self.explode == False:
+                    self.explode = pygame.time.get_ticks()
+                    self.gm.bolts.remove(e)
+                    self.gm.points += 5
+            elif type(e) == Asteroid and e != self:
+                if self.rect.colliderect(e.rect):
+                    self.explode = pygame.time.get_ticks()
+            elif type(e) == Player:
+                if self.rect.colliderect(e.rect):
+                    self.explode = pygame.time.get_ticks()
+                    self.gm.player.explode = pygame.time.get_ticks()
 
         self.draw()
 
