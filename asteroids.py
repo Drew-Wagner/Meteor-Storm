@@ -82,26 +82,87 @@ class GameOverState(object):
     def __init__(self, master):
         self.master = master
         self.active = False
+        self.entering = False
+        self._panel = self.get_panel()
+        
+    def get_panel(self, btn=False):
+        panel = pygame.Surface((300,200))
+        panel.fill((127,127,127))
+        msgSurfObj = FONT26.render("GAME OVER", False,
+                                   (255,255,255))
+        msgRectObj = msgSurfObj.get_rect()
+        msgRectObj.center = (150, 50)
+        panel.blit(msgSurfObj, msgRectObj)
+
+        btn_restart = pygame.Surface((90, 30))
+        msgSurfObj = None
+        if btn:
+            btn_restart.fill((0,0,0))
+            pygame.draw.rect(btn_restart, (65, 65, 65), (3,3, 84, 24), 1)
+            msgSurfObj = FONT16.render("RESTART", False,
+                                       (255,255,255))
+        else:
+            btn_restart.fill((255, 255, 255))
+            pygame.draw.rect(btn_restart, (190, 190, 190), (3,3, 84, 24), 1)
+            msgSurfObj = FONT16.render("RESTART", False,
+                                       (0,0,0))
+        msgRectObj = msgSurfObj.get_rect()
+        msgRectObj.center = btn_restart.get_rect().center
+        btn_restart.blit(msgSurfObj, msgRectObj)
+
+        btn_res_rect = btn_restart.get_rect()
+        btn_res_rect.center = (150, 100)
+        panel.blit(btn_restart, btn_res_rect)
+        
+
+        return panel.convert()
 
     def enter(self):
-        self.active = True
+        if self.entering == False:
+            self.entering = pygame.time.get_ticks()
+        t = float(pygame.time.get_ticks() - self.entering)
+
+        screen.blit(backgroundObj, (0,0))
+
+        # Finish asteroid explosions
+        for a in self.master.roids:
+            if a.explode == False:
+                a.explode = self.entering
+            a.vely = 20
+            a.draw()
+
+        # Do animation
+        if t > 500:
+            panel_rect = self._panel.get_rect()
+            panel_rect.center = (187, 300)
+            screen.blit(self._panel, panel_rect)
+            
+            self.active = True
+            self.entering = False
+        else:
+            panel = pygame.transform.rotozoom(self._panel, 0, t/500)
+            panel_rect = panel.get_rect()
+            panel_rect.center = (187, 100+ 200*t/500)
+            screen.blit(panel, panel_rect)
 
     def update(self):
         if self.active:
             screen.blit(backgroundObj, (0,0))
 
-            # Finish asteroid explosions
-            for a in self.master.roids:
-                a.vely = 20
-                a.draw()
-            pygame.draw.rect(screen, (127,127,127), (37, 200, 300, 200), 0)
+            btn_rect = pygame.Rect((0,0),(90,30))
+            btn_rect.center = (187, 300)
+            btn_active = btn_rect.collidepoint(pygame.mouse.get_pos())
+            panel = self.get_panel(btn=btn_active)
 
-            msgSurfObj = FONT26.render("GAME OVER", False,
-                                        (255,255,255))
-            msgRectObj = msgSurfObj.get_rect()
-            msgRectObj.center = (187, 300)
-            screen.blit(msgSurfObj, msgRectObj)
+            panel_rect = panel.get_rect()
+            panel_rect.center = (187, 300)
 
+            screen.blit(panel, panel_rect)
+
+            if btn_active and pygame.mouse.get_pressed()[0]:
+                self.master.goto(self.master.playingstate)
+        else: # Not finished entering state
+            self.enter()
     def leave(self):
         self.active = False
     
@@ -126,6 +187,12 @@ class PlayingState(object):
             if keys[K_ESCAPE]:
                 pygame.quit()
                 sys.exit()
+            if keys[K_UP]:
+                self.master.roidrate /= 2
+                if self.master.roidrate < 10:
+                    self.master.roidrate = 10
+            if keys[K_DOWN]:
+                self.master.roidrate *= 2
             if  keys[K_LEFT] or keys[K_a]:
                 self.master.player.move(-PLAYERMOVESPEED,0)
             if keys[K_RIGHT] or keys[K_d]:
@@ -173,12 +240,13 @@ class GameManager(object):
         self.gameoverstate = GameOverState(self)
 
         self.state = None
-        self.goto(self.openingstate)
 
         self.player = Player(self)
         
         self.newroid = 0
         self.roidrate = 1000 # New asteroid every 1000 milliseconds
+        
+        self.goto(self.openingstate)
 
     def update(self):
         if self.state:
