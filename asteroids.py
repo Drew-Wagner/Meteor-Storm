@@ -7,17 +7,72 @@ FPS = 30
 
 PLAYERMOVESPEED = 15
 
+pygame.init()
+screen = pygame.display.set_mode( (WIDTH, HEIGHT) )
+pygame.display.set_caption("Asteroids")
+
+fpsClock = pygame.time.Clock()
+
+# Load fonts
+FONT16 = pygame.font.SysFont("Comic sans MS", 16)
+FONT26 = pygame.font.SysFont("Comic sans MS", 26)
+FONT36 = pygame.font.SysFont("Comic sans MS", 36)
+
+# Load background sprites
+backgroundObj = pygame.image.load('images/space.png') # Image credit: GameArtGuppy.com
+
+# Load and transform player sprites
+playerSprite1 = pygame.image.load('images/spaceship/spaceship_1.gif') # Image credit: simeontemplar.deviantart.com
+playerSprite1 = pygame.transform.scale(playerSprite1, (75, 75))
+playerSprite2 = pygame.image.load('images/spaceship/spaceship_2.gif')
+playerSprite2 = pygame.transform.scale(playerSprite2, (75, 75))
+
+# Load and transform bolt sprites
+boltSprite1 = pygame.image.load('images/bolt.png')
+boltSprite1 = pygame.transform.scale(boltSprite1, (50, 33))
+boltSprite1 = pygame.transform.rotate(boltSprite1, 90)
+
+# Load and transform roid sprites
+roidSprite1 = pygame.image.load('images/asteroid.png')
+roidSprite1 = pygame.transform.scale(roidSprite1, (25,25))
+
 class OpeningState(object):
 
     def __init__(self, master):
         self.master = master
         self.active = False
+        self.entering = False
 
     def enter(self):
-        self.active = True
+        if self.entering == False:
+            self.entering = pygame.time.get_ticks()
+        t = float(pygame.time.get_ticks() - self.entering)
+        screen.fill((0,0,0))
+        gray = min(max(0,int(255*t/500)), 255)
+        text_meteorstorm = FONT36.render("METEOR STORM", False,
+                                         (gray,gray,gray))
+
+        if t > 500:
+            if t > 1000:
+                self.active = True
+                self.entering = False
+            else:
+                text_ms_rect = text_meteorstorm.get_rect()
+                text_ms_rect.center = (187, 300)
+                screen.blit(text_meteorstorm, text_ms_rect)
+        else:
+            # Opening Animation
+            text_meteorstorm = pygame.transform.rotozoom(text_meteorstorm, 0, t/500)
+            text_ms_rect = text_meteorstorm.get_rect()
+            text_ms_rect.center = (187, 300)
+            screen.blit(text_meteorstorm, text_ms_rect)
+        
 
     def update(self):
-        self.master.goto(self.master.playingstate)
+        if self.active:
+            self.master.goto(self.master.playingstate)
+        else: # Entering isn't finished
+            self.enter()
 
     def leave(self):
         self.active = False
@@ -41,7 +96,7 @@ class GameOverState(object):
                 a.draw()
             pygame.draw.rect(screen, (127,127,127), (37, 200, 300, 200), 0)
 
-            msgSurfObj = pygame.font.SysFont("Comic sans MS", 26).render("GAME OVER", False,
+            msgSurfObj = FONT26.render("GAME OVER", False,
                                         (255,255,255))
             msgRectObj = msgSurfObj.get_rect()
             msgRectObj.center = (187, 300)
@@ -92,7 +147,7 @@ class PlayingState(object):
             self.master.player.update()
 
             # Render poitns
-            msgSurfObj = fontObj.render("Points: " + str(self.master.points), False, (255,255,255))
+            msgSurfObj = FONT16.render("Points: " + str(self.master.points), False, (255,255,255))
             msgRectObj = msgSurfObj.get_rect()
             msgRectObj.topleft = (3, 3)
             screen.blit(msgSurfObj, msgRectObj)
@@ -237,32 +292,7 @@ class Asteroid(object):
         
                 
 
-pygame.init()
-screen = pygame.display.set_mode( (WIDTH, HEIGHT) )
-pygame.display.set_caption("Asteroids")
 
-fpsClock = pygame.time.Clock()
-
-# Load fonts
-fontObj = pygame.font.SysFont("Comic sans MS", 16)
-
-# Load background sprites
-backgroundObj = pygame.image.load('images/space.png') # Image credit: GameArtGuppy.com
-
-# Load and transform player sprites
-playerSprite1 = pygame.image.load('images/spaceship/spaceship_1.gif') # Image credit: simeontemplar.deviantart.com
-playerSprite1 = pygame.transform.scale(playerSprite1, (75, 75))
-playerSprite2 = pygame.image.load('images/spaceship/spaceship_2.gif')
-playerSprite2 = pygame.transform.scale(playerSprite2, (75, 75))
-
-# Load and transform bolt sprites
-boltSprite1 = pygame.image.load('images/bolt.png')
-boltSprite1 = pygame.transform.scale(boltSprite1, (50, 33))
-boltSprite1 = pygame.transform.rotate(boltSprite1, 90)
-
-# Load and transform roid sprites
-roidSprite1 = pygame.image.load('images/asteroid.png')
-roidSprite1 = pygame.transform.scale(roidSprite1, (25,25))
 
 manager = GameManager()
 
