@@ -223,6 +223,7 @@ class PlayingState(object):
             self.master.newroid = max(self.master.newroid - fpsClock.get_time(), 0)
 
     def leave(self):
+        self.master.points = 0
         self.active = False
 
 
@@ -330,7 +331,6 @@ class Asteroid(object):
             self.velx = -self.velx
             
         if self.rect.top > HEIGHT:
-            self.gm.points -= 50 # Take away points for missing asteroid
             self.gm.roids.remove(self)
 
         for e in self.gm.bolts + self.gm.roids + [self.gm.player]:
