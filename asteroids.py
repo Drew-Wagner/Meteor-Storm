@@ -199,13 +199,13 @@ fontObj = pygame.font.SysFont("Comic sans MS", 16)
 backgroundObj = pygame.image.load('images/space.png') # Image credit: GameArtGuppy.com
 
 # Load and transform player sprites
-playerSprite1 = pygame.image.load('images/spaceship.gif') # Image credit: simeontemplar.deviantart.com
+playerSprite1 = pygame.image.load('images/spaceship/spaceship_1.gif') # Image credit: simeontemplar.deviantart.com
 playerSprite1 = pygame.transform.scale(playerSprite1, (75, 75))
-playerSprite2 = pygame.image.load('images/spaceship2.gif')
+playerSprite2 = pygame.image.load('images/spaceship/spaceship_2.gif')
 playerSprite2 = pygame.transform.scale(playerSprite2, (75, 75))
 
 # Load and transform bolt sprites
-boltSprite1 = pygame.image.load('images/bolt1.png')
+boltSprite1 = pygame.image.load('images/bolt.png')
 boltSprite1 = pygame.transform.scale(boltSprite1, (50, 33))
 boltSprite1 = pygame.transform.rotate(boltSprite1, 90)
 
