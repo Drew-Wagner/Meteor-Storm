@@ -13,6 +13,9 @@ FPS = 30
 PLAYERMOVESPEED = 15
 
 class GameManager(object):
+    OPENING = 0
+    GAMEPLAY = 1
+    GAMEOVER = 2
     def __init__(self):
         self.points = 0
         self.bolts = []
@@ -24,8 +27,30 @@ class GameManager(object):
         
         self.newroid = 0
         self.roidrate = 1000 # New asteroid every 1000 milliseconds
-        
+
     def update(self):
+        if self.state == GameManager.OPENING:
+            self.gameopening()
+        elif self.state == GameManager.GAMEPLAY:
+            self.gameplay()
+        elif self.state == GameManager.GAMEOVER:
+            self.gameover()
+    def gameopening(self):
+        pass
+
+    def gameover(self):
+        for a in self.roids:
+            a.vely = 20
+            a.draw()
+        pygame.draw.rect(screen, (127,127,127), (37, 200, 300, 200), 0)
+
+        msgSurfObj = pygame.font.SysFont("Comic sans MS", 26).render("GAME OVER", False,
+                                    (255,255,255))
+        msgRectObj = msgSurfObj.get_rect()
+        msgRectObj.center = (187, 300)
+        screen.blit(msgSurfObj, msgRectObj)
+    
+    def gameplay(self):
         # Asteroid generation
         if self.newroid == 0:
             Asteroid(self, random.randint(0, 14)*25, random.randint(-5,5), random.randint(2,8))
@@ -86,7 +111,6 @@ class Player(object):
             pygame.draw.circle(screen, (255,127,31), self.rect.center, dt/2)
             if dt > 100:
                 self.explode = False
-                print "You died :("
                 self.gm.state = states["GAMEOVER"]
 
     def draw(self):
