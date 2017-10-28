@@ -1,16 +1,100 @@
 import pygame, sys, random
-
 from pygame.locals import *
-
-states = {"OPENING": 0,
-          "GAMEPLAY": 1,
-          "GAMEOVER": 2}
 
 WIDTH = 375
 HEIGHT = 600
 FPS = 30
 
 PLAYERMOVESPEED = 15
+
+class OpeningState(object):
+
+    def __init__(self, master):
+        self.master = master
+        self.active = False
+
+    def enter(self):
+        self.active = True
+
+    def update(self):
+        self.master.goto(self.master.playingstate)
+
+    def leave(self):
+        self.active = False
+
+class GameOverState(object):
+
+    def __init__(self, master):
+        self.master = master
+        self.active = False
+
+    def enter(self):
+        self.active = True
+
+    def update(self):
+        if self.active:
+            for a in self.master.roids:
+                a.vely = 20
+                a.draw()
+            pygame.draw.rect(screen, (127,127,127), (37, 200, 300, 200), 0)
+
+            msgSurfObj = pygame.font.SysFont("Comic sans MS", 26).render("GAME OVER", False,
+                                        (255,255,255))
+            msgRectObj = msgSurfObj.get_rect()
+            msgRectObj.center = (187, 300)
+            screen.blit(msgSurfObj, msgRectObj)
+
+    def leave(self):
+        self.active = False
+    
+
+class PlayingState(object):
+
+    def __init__(self, master):
+        self.master = master
+        self.active = False
+
+    def enter(self):
+        self.active = True
+
+    def update(self):
+        if self.active:
+            # Asteroid generation
+            if self.master.newroid == 0:
+                Asteroid(self.master, random.randint(0, 14)*25, random.randint(-5,5), random.randint(2,8))
+                self.master.newroid = self.master.roidrate
+            # Player movement
+            keys = pygame.key.get_pressed()
+            if keys[K_ESCAPE]:
+                pygame.quit()
+                sys.exit()
+            if  keys[K_LEFT] or keys[K_a]:
+                self.master.player.move(-PLAYERMOVESPEED,0)
+            if keys[K_RIGHT] or keys[K_d]:
+                self.master.player.move(PLAYERMOVESPEED, 0)
+
+            if keys[K_SPACE] or keys[K_f]:
+               self.master.player.fire()
+
+           # Update entities
+            for b in self.master.bolts:
+                b.update()
+            for a in self.master.roids:
+                a.update()
+            self.master.player.update()
+
+            # Render poitns
+            msgSurfObj = fontObj.render("Points: " + str(self.master.points), False, (255,255,255))
+            msgRectObj = msgSurfObj.get_rect()
+            msgRectObj.topleft = (3, 3)
+            screen.blit(msgSurfObj, msgRectObj)
+
+            # Decrease new asteroid timer
+            self.master.newroid = max(self.master.newroid - fpsClock.get_time(), 0)
+
+    def leave(self):
+        self.active = False
+
 
 class GameManager(object):
     OPENING = 0
@@ -21,7 +105,12 @@ class GameManager(object):
         self.bolts = []
         self.roids = []
 
-        self.state = states["GAMEPLAY"]
+        self.openingstate = OpeningState(self)
+        self.playingstate = PlayingState(self)
+        self.gameoverstate = GameOverState(self)
+
+        self.state = None
+        self.goto(self.openingstate)
 
         self.player = Player(self)
         
@@ -29,60 +118,14 @@ class GameManager(object):
         self.roidrate = 1000 # New asteroid every 1000 milliseconds
 
     def update(self):
-        if self.state == GameManager.OPENING:
-            self.gameopening()
-        elif self.state == GameManager.GAMEPLAY:
-            self.gameplay()
-        elif self.state == GameManager.GAMEOVER:
-            self.gameover()
-    def gameopening(self):
-        pass
-
-    def gameover(self):
-        for a in self.roids:
-            a.vely = 20
-            a.draw()
-        pygame.draw.rect(screen, (127,127,127), (37, 200, 300, 200), 0)
-
-        msgSurfObj = pygame.font.SysFont("Comic sans MS", 26).render("GAME OVER", False,
-                                    (255,255,255))
-        msgRectObj = msgSurfObj.get_rect()
-        msgRectObj.center = (187, 300)
-        screen.blit(msgSurfObj, msgRectObj)
-    
-    def gameplay(self):
-        # Asteroid generation
-        if self.newroid == 0:
-            Asteroid(self, random.randint(0, 14)*25, random.randint(-5,5), random.randint(2,8))
-            self.newroid = self.roidrate
-        # Player movement
-        keys = pygame.key.get_pressed()
-        if keys[K_ESCAPE]:
-            pygame.quit()
-            sys.exit()
-        if  keys[K_LEFT] or keys[K_a]:
-            self.player.move(-PLAYERMOVESPEED,0)
-        if keys[K_RIGHT] or keys[K_d]:
-            self.player.move(PLAYERMOVESPEED, 0)
-
-        if keys[K_SPACE] or keys[K_f]:
-           self.player.fire()
-
-       # Update entities
-        for b in self.bolts:
-            b.update()
-        for a in self.roids:
-            a.update()
-        self.player.update()
-
-        # Render poitns
-        msgSurfObj = fontObj.render("Points: " + str(self.points), False, (255,255,255))
-        msgRectObj = msgSurfObj.get_rect()
-        msgRectObj.topleft = (3, 3)
-        screen.blit(msgSurfObj, msgRectObj)
-
-        # Decrease new asteroid timer
-        self.newroid = max(self.newroid - fpsClock.get_time(), 0)
+        if self.state:
+            self.state.update()
+    def goto(self, state):
+        if self.state:
+            self.state.leave()
+        self.state = state
+        self.state.enter()
+        
 
 class Player(object):
     def __init__(self, gm):
@@ -111,7 +154,7 @@ class Player(object):
             pygame.draw.circle(screen, (255,127,31), self.rect.center, dt/2)
             if dt > 100:
                 self.explode = False
-                self.gm.state = states["GAMEOVER"]
+                self.gm.goto(self.gm.gameoverstate)
 
     def draw(self):
         if pygame.time.get_ticks() % 200 < 100:
