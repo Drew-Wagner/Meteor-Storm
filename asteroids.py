@@ -17,6 +17,7 @@ fpsClock = pygame.time.Clock()
 FONT_S = pygame.font.SysFont("Impact", 18)
 FONT_M = pygame.font.SysFont("Impact", 28)
 FONT_L = pygame.font.SysFont("Impact", 46)
+FONT_XL = pygame.font.SysFont("Impact", 66)
 
 # Load background sprites
 backgroundObj = pygame.image.load('images/space.png') # Image credit: GameArtGuppy.com
@@ -45,6 +46,7 @@ class OpeningState(object):
         self.timer = False
 
     def enter(self):
+        self.master.points = 0
         if self.timer == False:
             self.timer = pygame.time.get_ticks()
         t = float(pygame.time.get_ticks() - self.timer)
@@ -67,12 +69,153 @@ class OpeningState(object):
             text_ms_rect = text_meteorstorm.get_rect()
             text_ms_rect.center = (187, 300)
             screen.blit(text_meteorstorm, text_ms_rect)
-        
 
     def update(self):
         if self.active:
-            self.master.goto(self.master.playingstate)
+            self.master.goto(self.master.mainmenustate)
         else: # timer isn't finished
+            self.enter()
+
+    def leave(self, state):
+        self.active = False
+        self.master._enter(state)
+
+class MainMenuState(object):
+
+    def __init__(self, master):
+        self.master = master
+        self.name = "MAINMENU"
+        self.active = False
+        self.timer = False
+
+    def black(self): # Overlay from opening scene for fade-out
+        black = pygame.Surface((WIDTH,HEIGHT))
+        black.fill((0,0,0))
+
+        return black.convert()
+
+    def draw(self, btn_p=False, btn_ins=False, btn_q=False):
+        # Draw background
+        screen.blit(backgroundObj, (0,0))
+
+        # Draw Title
+        title = FONT_XL.render("METEOR", False,
+                                      (255,255,255))
+        title_rect = title.get_rect()
+        title_rect.center = (187, 90)
+        screen.blit(title, title_rect)
+        title = FONT_XL.render("STORM", False,
+                                      (255,255,255))
+        title_rect = title.get_rect()
+        title_rect.center = (187, 150)
+        screen.blit(title, title_rect)
+
+        # Draw Play button
+        btn_play = pygame.Surface((300, 50))
+        msgSurfObj = None
+        if btn_p:
+            btn_play.fill((0,0,0))
+            pygame.draw.rect(btn_play, (65, 65, 65), (6,6, 288, 38), 2)
+            msgSurfObj = FONT_M.render("PLAY", False,
+                                       (255,255,255))
+        else:
+            btn_play.fill((255, 255, 255))
+            pygame.draw.rect(btn_play, (190, 190, 190), (6,6, 288, 38), 2)
+            msgSurfObj = FONT_M.render("PLAY", False,
+                                       (0,0,0))
+        msg_rect = msgSurfObj.get_rect()
+        msg_rect.center = btn_play.get_rect().center
+        btn_play.blit(msgSurfObj, msg_rect)
+
+        btn_play_rect = btn_play.get_rect()
+        btn_play_rect.center = (187, 250)
+        screen.blit(btn_play, btn_play_rect)
+
+        # Draw Instructions button
+        btn_instructions = pygame.Surface((300, 50))
+        msgSurfObj = None
+        if btn_ins:
+            btn_instructions.fill((0,0,0))
+            pygame.draw.rect(btn_instructions, (65, 65, 65), (6,6, 288, 38), 2)
+            msgSurfObj = FONT_M.render("INSTRUCTIONS", False,
+                                       (255,255,255))
+        else:
+            btn_instructions.fill((255, 255, 255))
+            pygame.draw.rect(btn_instructions, (190, 190, 190), (6,6, 288, 38), 2)
+            msgSurfObj = FONT_M.render("INSTRUCTIONS", False,
+                                       (0,0,0))
+        msg_rect = msgSurfObj.get_rect()
+        msg_rect.center = btn_instructions.get_rect().center
+        btn_instructions.blit(msgSurfObj, msg_rect)
+
+        btn_ins_rect = btn_instructions.get_rect()
+        btn_ins_rect.center = (187, 350)
+        screen.blit(btn_instructions, btn_ins_rect)
+
+        # Draw QUIT button
+        btn_quit = pygame.Surface((300, 50))
+        msgSurfObj = None
+        if btn_q:
+            btn_quit.fill((0,0,0))
+            pygame.draw.rect(btn_quit, (65, 65, 65), (6,6, 288, 38), 2)
+            msgSurfObj = FONT_M.render("QUIT", False,
+                                       (255,255,255))
+        else:
+            btn_quit.fill((255, 255, 255))
+            pygame.draw.rect(btn_quit, (190, 190, 190), (6,6, 288, 38), 2)
+            msgSurfObj = FONT_M.render("QUIT", False,
+                                       (0,0,0))
+        msg_rect = msgSurfObj.get_rect()
+        msg_rect.center = btn_quit.get_rect().center
+        btn_quit.blit(msgSurfObj, msg_rect)
+
+        btn_quit_rect = btn_quit.get_rect()
+        btn_quit_rect.center = (187, 450)
+        screen.blit(btn_quit, btn_quit_rect)
+
+    def enter(self):
+        if not self.timer:
+            self.timer = pygame.time.get_ticks()
+        else:
+            t = float(pygame.time.get_ticks() - self.timer)
+
+            self.draw()
+            black = self.black()
+            black.set_alpha(int(max(255 - t, 0)))
+
+            screen.blit(black, (0,0))
+
+            if t > 1000:
+                self.active = True
+                self.timer = False
+
+    def update(self):
+        if self.active:
+            btn_play_rect = pygame.Rect((0,0),(300,50))
+            btn_play_rect.center = (187, 250)
+            btn_play_active = btn_play_rect.collidepoint(pygame.mouse.get_pos())
+
+            btn_inst_rect = pygame.Rect((0,0),(300,50))
+            btn_inst_rect.center = (187, 350)
+            btn_inst_active = btn_inst_rect.collidepoint(pygame.mouse.get_pos())
+            
+            btn_quit_rect = pygame.Rect((0,0),(300,50))
+            btn_quit_rect.center = (187, 450)
+            btn_quit_active = btn_quit_rect.collidepoint(pygame.mouse.get_pos())
+
+            flag = pygame.mouse.get_pressed()[0]
+            if flag:
+                if btn_play_active:
+                    self.master.goto(self.master.playingstate)
+                elif btn_inst_active:
+                    pass
+                elif btn_quit_active:
+                    # TODO goto exit state
+                    pygame.quit()
+                    sys.exit()
+            
+            self.draw(btn_play_active, btn_inst_active, btn_quit_active)
+        else:
             self.enter()
 
     def leave(self, state):
@@ -196,11 +339,13 @@ class GameOverState(object):
 
             screen.blit(panel, panel_rect)
 
-            if btn_res_active and pygame.mouse.get_pressed()[0]:
-                self.master.goto(self.master.playingstate)
+            flag = pygame.mouse.get_pressed()[0]
+            if flag:
+                if btn_res_active:
+                    self.master.goto(self.master.playingstate)
 
-            if btn_mm_active and pygame.mouse.get_pressed()[0]:
-                self.master.goto(self.master.openingstate)
+                elif btn_mm_active:
+                    self.master.goto(self.master.mainmenustate)
                 
         else: # Not finished timer state
             self.enter()
@@ -216,8 +361,10 @@ class PauseState(object):
         self.name = "PAUSED"
         self.active = False
         self.timer = False
+        self.leaving = False
+        self._nextstate = None
 
-    def get_panel(self, btn_res=False):
+    def get_panel(self, btn_res=False, btn_mm=False):
         panel = pygame.Surface((300,200))
         panel.fill((127,127,127))
         pygame.draw.rect(panel, (65,65,65), panel.get_rect(), 5)
@@ -245,9 +392,30 @@ class PauseState(object):
         msgRectObj.center = btn_resume.get_rect().center
         btn_resume.blit(msgSurfObj, msgRectObj)
 
+        btn_mainmenu = pygame.Surface((115, 30))
+        msgSurfObj = None
+        if btn_mm:
+            btn_mainmenu.fill((0,0,0))
+            pygame.draw.rect(btn_mainmenu, (65, 65, 65), (3,3, 109, 24), 1)
+            msgSurfObj = FONT_S.render("MAIN MENU", False,
+                                       (255,255,255))
+        else:
+            btn_mainmenu.fill((255, 255, 255))
+            pygame.draw.rect(btn_mainmenu, (190, 190, 190), (3,3, 109, 24), 1)
+            msgSurfObj = FONT_S.render("MAIN MENU", False,
+                                       (0,0,0))
+
+        msgRectObj = msgSurfObj.get_rect()
+        msgRectObj.center = btn_mainmenu.get_rect().center
+        btn_mainmenu.blit(msgSurfObj, msgRectObj)
+
         btn_resume_rect = btn_resume.get_rect()
-        btn_resume_rect.center = (150, 100)
+        btn_resume_rect.center = (150, 110)
         panel.blit(btn_resume, btn_resume_rect)
+
+        btn_mm_rect = btn_mainmenu.get_rect()
+        btn_mm_rect.center = (150, 145)
+        panel.blit(btn_mainmenu, btn_mm_rect)
 
         return panel.convert()    
 
@@ -274,36 +442,66 @@ class PauseState(object):
             screen.blit(panel, panel_rect)
 
     def update(self):
-        if self.active:
+        if self.active and not self.leaving:
             screen.blit(backgroundObj, (0,0))
 
             btn_res_rect = pygame.Rect((0,0),(115,30))
-            btn_res_rect.center = (187, 300)
+            btn_res_rect.center = (187, 310)
             btn_res_active = btn_res_rect.collidepoint(pygame.mouse.get_pos())
 
-##            btn_mm_rect = pygame.Rect((0,0),(115,30))
-##            btn_mm_rect.center = (187, 345)
-##            btn_mm_active = btn_mm_rect.collidepoint(pygame.mouse.get_pos())
+            btn_mm_rect = pygame.Rect((0,0),(115,30))
+            btn_mm_rect.center = (187, 345)
+            btn_mm_active = btn_mm_rect.collidepoint(pygame.mouse.get_pos())
             
-            panel = self.get_panel(btn_res_active)
+            panel = self.get_panel(btn_res_active, btn_mm_active)
 
             panel_rect = panel.get_rect()
             panel_rect.center = (187, 300)
 
             screen.blit(panel, panel_rect)
 
-            if btn_res_active and pygame.mouse.get_pressed()[0]:
-                self.master.goto(self.master.playingstate)
+            flag = pygame.mouse.get_pressed()[0]
+            if flag:
+                if btn_res_active:
+                    self.master.goto(self.master.playingstate)
+
+                elif btn_mm_active:
+                    self.master.goto(self.master.mainmenustate)
 
             keys = pygame.key.get_pressed()
             if keys[K_ESCAPE]:
                 self.master.goto(self.master.playingstate)
+        elif self.leaving:
+            self.leave(self._nextstate)
         else:
             self.enter()
 
     def leave(self, state):
-        self.active = False
-        self.master._enter(state)
+        if not self.leaving:
+            self.leaving = True
+            self._nextstate = state
+            self.timer = pygame.time.get_ticks()
+        else:
+            if self.timer == False:
+                self.timer = pygame.time.get_ticks()
+            t = float(pygame.time.get_ticks() - self.timer)
+
+            screen.blit(backgroundObj, (0,0))
+
+            # Do animation
+            panel = self.get_panel()
+            if t > 250:
+                self.leaving = False
+                self._nextstate = False
+                self.active = False
+                self.timer = False
+                self.master._enter(state)
+            else:
+                panel = pygame.transform.rotozoom(panel, 0, (250-t)/250)
+                panel_rect = panel.get_rect()
+                panel_rect.center = (187, 300)
+                screen.blit(panel, panel_rect)
+            
 
 class PlayingState(object):
 
@@ -381,6 +579,7 @@ class GameManager(object):
         self.roids = []
 
         self.openingstate = OpeningState(self)
+        self.mainmenustate = MainMenuState(self)
         self.playingstate = PlayingState(self)
         self.pausestate = PauseState(self)
         self.gameoverstate = GameOverState(self)
