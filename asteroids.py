@@ -21,7 +21,7 @@ def load_asteroids(num):
         ASTEROID_SPRITES.append(s)
 
 # Load fonts
-FONT_S = pygame.font.SysFont("Impact", 18)
+FONT_S = pygame.font.SysFont("Impact", 20)
 FONT_M = pygame.font.SysFont("Impact", 28)
 FONT_L = pygame.font.SysFont("Impact", 46)
 FONT_XL = pygame.font.SysFont("Impact", 66)
@@ -42,6 +42,10 @@ boltSprite1 = pygame.transform.rotate(boltSprite1, 90)
 
 # Load and transform roid sprites
 load_asteroids(4)
+
+# Load and transform heart
+heartSprite = pygame.image.load('images/heart.png')
+heartSprite = pygame.transform.scale(heartSprite, (28, 28))
 
 class OpeningState(object):
 
@@ -357,6 +361,7 @@ class GameOverState(object):
             self.enter()
     def leave(self, state):
         self.master.points = 0
+        self.master.player.lives = 3
         self.active = False
         self.master._enter(state)
 
@@ -516,6 +521,14 @@ class PlayingState(object):
         self.name = "PLAYING"
         self.active = False
 
+    def drawlives(self, n):
+        r = pygame.Rect((0, 0), (28, 28))
+        r.right = WIDTH-2
+        r.centery = 18
+        for i in range(n):
+            screen.blit(heartSprite, r)
+            r.left -= 28
+
     def enter(self):
         pygame.time.wait(250)
         self.active = True
@@ -561,11 +574,19 @@ class PlayingState(object):
             # Update and draw player
             self.master.player.update()
 
-            # Render poitns
-            msgSurfObj = FONT_S.render("SCORE: " + str(self.master.points), False, (255,255,255))
+            # Render points
+            msgSurfObj = FONT_M.render("SCORE: " + str(self.master.points), False, (255,255,255))
             msgRectObj = msgSurfObj.get_rect()
-            msgRectObj.topleft = (3, 3)
+            msgRectObj.left = 3
+            msgRectObj.top = 0
             screen.blit(msgSurfObj, msgRectObj)
+
+            # Render lives
+            lives = self.master.player.lives
+            if lives > 0:
+                self.drawlives(lives)
+            else:
+                self.master.goto(self.master.gameoverstate)
 
             # Decrease new asteroid timer
             self.master.newroid = max(self.master.newroid - fpsClock.get_time(), 0)
@@ -617,6 +638,7 @@ class Player(object):
     def __init__(self, gm):
         self.gm = gm
         self.rect = pygame.Rect(150,513, 75, 75)
+        self.lives = 3
         self.canfire = 0
         self.explode = False
 
@@ -688,20 +710,22 @@ class Asteroid(object):
             
         if self.rect.top > HEIGHT:
             self.gm.roids.remove(self)
+            self.gm.goto(self.gm.gameoverstate)
 
         for e in self.gm.bolts + self.gm.roids + [self.gm.player]:
             if type(e) == Bolt:
-                if self.rect.colliderect(e.rect) and self.explode == False:
+                if self.rect.colliderect(e.rect) and not self.explode:
                     self.explode = pygame.time.get_ticks()
                     self.gm.bolts.remove(e)
                     self.gm.points += 5
-            elif type(e) == Asteroid and e != self:
+            elif type(e) == Asteroid and e != self and not self.explode:
                 if self.rect.colliderect(e.rect):
                     self.explode = pygame.time.get_ticks()
             elif type(e) == Player:
-                if self.rect.colliderect(e.rect):
+                if self.rect.colliderect(e.rect) and not self.explode:
                     self.explode = pygame.time.get_ticks()
-                    self.gm.player.explode = pygame.time.get_ticks()
+                    self.vely = -self.vely
+                    self.gm.player.lives -= 1
 
         self.draw()
 
