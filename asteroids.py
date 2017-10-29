@@ -21,7 +21,7 @@ def load_asteroids(num):
         ASTEROID_SPRITES.append(s)
 
 # Load fonts
-FONT_S = pygame.font.SysFont("Impact", 18)
+FONT_S = pygame.font.SysFont("Impact", 20)
 FONT_M = pygame.font.SysFont("Impact", 28)
 FONT_L = pygame.font.SysFont("Impact", 46)
 FONT_XL = pygame.font.SysFont("Impact", 66)
@@ -361,6 +361,7 @@ class GameOverState(object):
             self.enter()
     def leave(self, state):
         self.master.points = 0
+        self.master.player.lives = 3
         self.active = False
         self.master._enter(state)
 
@@ -574,10 +575,10 @@ class PlayingState(object):
             self.master.player.update()
 
             # Render points
-            msgSurfObj = FONT_S.render("SCORE: " + str(self.master.points), False, (255,255,255))
+            msgSurfObj = FONT_M.render("SCORE: " + str(self.master.points), False, (255,255,255))
             msgRectObj = msgSurfObj.get_rect()
             msgRectObj.left = 3
-            msgRectObj.top = 5
+            msgRectObj.top = 0
             screen.blit(msgSurfObj, msgRectObj)
 
             # Render lives
@@ -708,22 +709,23 @@ class Asteroid(object):
             self.velx = -self.velx
             
         if self.rect.top > HEIGHT:
-            self.gm.player.lives -= 1
             self.gm.roids.remove(self)
+            self.gm.goto(self.gm.gameoverstate)
 
         for e in self.gm.bolts + self.gm.roids + [self.gm.player]:
             if type(e) == Bolt:
-                if self.rect.colliderect(e.rect) and self.explode == False:
+                if self.rect.colliderect(e.rect) and not self.explode:
                     self.explode = pygame.time.get_ticks()
                     self.gm.bolts.remove(e)
                     self.gm.points += 5
-            elif type(e) == Asteroid and e != self:
+            elif type(e) == Asteroid and e != self and not self.explode:
                 if self.rect.colliderect(e.rect):
                     self.explode = pygame.time.get_ticks()
             elif type(e) == Player:
-                if self.rect.colliderect(e.rect):
+                if self.rect.colliderect(e.rect) and not self.explode:
                     self.explode = pygame.time.get_ticks()
-                    self.gm.player.explode = pygame.time.get_ticks()
+                    self.vely = -self.vely
+                    self.gm.player.lives -= 1
 
         self.draw()
 
