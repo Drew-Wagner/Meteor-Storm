@@ -40,13 +40,14 @@ class OpeningState(object):
 
     def __init__(self, master):
         self.master = master
+        self.name = "OPENING"
         self.active = False
-        self.entering = False
+        self.timer = False
 
     def enter(self):
-        if self.entering == False:
-            self.entering = pygame.time.get_ticks()
-        t = float(pygame.time.get_ticks() - self.entering)
+        if self.timer == False:
+            self.timer = pygame.time.get_ticks()
+        t = float(pygame.time.get_ticks() - self.timer)
         screen.fill((0,0,0))
         gray = min(max(0,int(255*t/500)), 255)
         text_meteorstorm = FONT_L.render("METEOR STORM", False,
@@ -55,7 +56,7 @@ class OpeningState(object):
         if t > 500:
             if t > 1000:
                 self.active = True
-                self.entering = False
+                self.timer = False
             else:
                 text_ms_rect = text_meteorstorm.get_rect()
                 text_ms_rect.center = (187, 300)
@@ -71,7 +72,7 @@ class OpeningState(object):
     def update(self):
         if self.active:
             self.master.goto(self.master.playingstate)
-        else: # Entering isn't finished
+        else: # timer isn't finished
             self.enter()
 
     def leave(self):
@@ -81,13 +82,15 @@ class GameOverState(object):
 
     def __init__(self, master):
         self.master = master
+        self.name = "GAMEOVER"
         self.active = False
-        self.entering = False
+        self.timer = False
         
     def get_panel(self, btn_res=False, btn_mm=False):
         panel = pygame.Surface((300,200))
         panel.fill((127,127,127))
         pygame.draw.rect(panel, (65,65,65), panel.get_rect(), 5)
+        
         msgSurfObj = FONT_M.render("GAME OVER", False,
                                    (255,255,255))
         msgRectObj = msgSurfObj.get_rect()
@@ -145,16 +148,16 @@ class GameOverState(object):
         return panel.convert()
 
     def enter(self):
-        if self.entering == False:
-            self.entering = pygame.time.get_ticks()
-        t = float(pygame.time.get_ticks() - self.entering)
+        if self.timer == False:
+            self.timer = pygame.time.get_ticks()
+        t = float(pygame.time.get_ticks() - self.timer)
 
         screen.blit(backgroundObj, (0,0))
 
         # Finish asteroid explosions
         for a in self.master.roids:
             if a.explode == False:
-                a.explode = self.entering
+                a.explode = self.timer
             a.vely = 20
             a.draw()
 
@@ -166,7 +169,7 @@ class GameOverState(object):
             screen.blit(panel, panel_rect)
             
             self.active = True
-            self.entering = False
+            self.timer = False
         else:
             panel = pygame.transform.rotozoom(panel, 0, t/500)
             panel_rect = panel.get_rect()
@@ -198,8 +201,104 @@ class GameOverState(object):
             if btn_mm_active and pygame.mouse.get_pressed()[0]:
                 self.master.goto(self.master.openingstate)
                 
-        else: # Not finished entering state
+        else: # Not finished timer state
             self.enter()
+    def leave(self):
+        self.master.points = 0
+        self.active = False
+
+class PauseState(object):
+
+    def __init__(self, master):
+        self.master = master
+        self.name = "PAUSED"
+        self.active = False
+        self.timer = False
+
+    def get_panel(self, btn_res=False):
+        panel = pygame.Surface((300,200))
+        panel.fill((127,127,127))
+        pygame.draw.rect(panel, (65,65,65), panel.get_rect(), 5)
+        
+        msgSurfObj = FONT_M.render("PAUSED", False,
+                                   (255,255,255))
+        msgRectObj = msgSurfObj.get_rect()
+        msgRectObj.center = (150, 50)
+        panel.blit(msgSurfObj, msgRectObj)
+
+        btn_resume = pygame.Surface((115, 30))
+        msgSurfObj = None
+        if btn_res:
+            btn_resume.fill((0,0,0))
+            pygame.draw.rect(btn_resume, (65, 65, 65), (3,3, 109, 24), 1)
+            msgSurfObj = FONT_S.render("RESUME", False,
+                                       (255,255,255))
+        else:
+            btn_resume.fill((255, 255, 255))
+            pygame.draw.rect(btn_resume, (190, 190, 190), (3,3, 109, 24), 1)
+            msgSurfObj = FONT_S.render("RESUME", False,
+                                       (0,0,0))
+
+        msgRectObj = msgSurfObj.get_rect()
+        msgRectObj.center = btn_resume.get_rect().center
+        btn_resume.blit(msgSurfObj, msgRectObj)
+
+        btn_resume_rect = btn_resume.get_rect()
+        btn_resume_rect.center = (150, 100)
+        panel.blit(btn_resume, btn_resume_rect)
+
+        return panel.convert()    
+
+    def enter(self):
+        if self.timer == False:
+            self.timer = pygame.time.get_ticks()
+        t = float(pygame.time.get_ticks() - self.timer)
+
+        screen.blit(backgroundObj, (0,0))
+
+        # Do animation
+        panel = self.get_panel()
+        if t > 250:
+            panel_rect = panel.get_rect()
+            panel_rect.center = (187, 300)
+            screen.blit(panel, panel_rect)
+            
+            self.active = True
+            self.timer = False
+        else:
+            panel = pygame.transform.rotozoom(panel, 0, t/250)
+            panel_rect = panel.get_rect()
+            panel_rect.center = (187, 300)
+            screen.blit(panel, panel_rect)
+
+    def update(self):
+        if self.active:
+            screen.blit(backgroundObj, (0,0))
+
+            btn_res_rect = pygame.Rect((0,0),(115,30))
+            btn_res_rect.center = (187, 300)
+            btn_res_active = btn_res_rect.collidepoint(pygame.mouse.get_pos())
+
+##            btn_mm_rect = pygame.Rect((0,0),(115,30))
+##            btn_mm_rect.center = (187, 345)
+##            btn_mm_active = btn_mm_rect.collidepoint(pygame.mouse.get_pos())
+            
+            panel = self.get_panel(btn_res_active)
+
+            panel_rect = panel.get_rect()
+            panel_rect.center = (187, 300)
+
+            screen.blit(panel, panel_rect)
+
+            if btn_res_active and pygame.mouse.get_pressed()[0]:
+                self.master.goto(self.master.playingstate)
+
+            keys = pygame.key.get_pressed()
+            if keys[K_ESCAPE]:
+                self.master.goto(self.master.playingstate)
+        else:
+            self.enter()
+
     def leave(self):
         self.active = False
     
@@ -208,9 +307,11 @@ class PlayingState(object):
 
     def __init__(self, master):
         self.master = master
+        self.name = "PLAYING"
         self.active = False
 
     def enter(self):
+        pygame.time.wait(250)
         self.active = True
 
     def update(self):
@@ -219,20 +320,21 @@ class PlayingState(object):
             if self.master.newroid == 0:
                 Asteroid(self.master, random.randint(0, 14)*25, random.randint(-5,5), random.randint(2,8))
                 self.master.newroid = self.master.roidrate
-            # Player movement
+
             keys = pygame.key.get_pressed()
+            # Keybindings
             if keys[K_ESCAPE]:
-                pygame.quit()
-                sys.exit()
+                self.master.goto(self.master.pausestate)
             if keys[K_UP]:
                 self.master.roidrate /= 2
                 if self.master.roidrate < 10:
                     self.master.roidrate = 10
             if keys[K_DOWN]:
                 self.master.roidrate *= 2
-
             if keys[K_RETURN]:
                 self.master.goto(self.master.gameoverstate)
+
+            # Player movement
             if  keys[K_LEFT] or keys[K_a]:
                 self.master.player.move(-PLAYERMOVESPEED,0)
             if keys[K_RIGHT] or keys[K_d]:
@@ -263,7 +365,6 @@ class PlayingState(object):
             self.master.newroid = max(self.master.newroid - fpsClock.get_time(), 0)
 
     def leave(self):
-        self.master.points = 0
         self.active = False
 
 
@@ -278,9 +379,10 @@ class GameManager(object):
 
         self.openingstate = OpeningState(self)
         self.playingstate = PlayingState(self)
+        self.pausestate = PauseState(self)
         self.gameoverstate = GameOverState(self)
 
-        self.state = None
+        self._state = None
 
         self.player = Player(self)
         
@@ -290,13 +392,16 @@ class GameManager(object):
         self.goto(self.openingstate)
 
     def update(self):
-        if self.state:
-            self.state.update()
+        if self._state:
+            self._state.update()
+
+    def get_state(self):
+        return self._state.name
     def goto(self, state):
-        if self.state:
-            self.state.leave()
-        self.state = state
-        self.state.enter()
+        if self._state:
+            self._state.leave()
+        self._state = state
+        self._state.enter()
         
 
 class Player(object):
