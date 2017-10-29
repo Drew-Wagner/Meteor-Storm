@@ -13,6 +13,13 @@ pygame.display.set_caption("Asteroids")
 
 fpsClock = pygame.time.Clock()
 
+ASTEROID_SPRITES = []
+def load_asteroids(num):
+    for i in range(num):
+        s = pygame.image.load('images/asteroids/asteroid'+str(i+1)+'.png')
+        s = pygame.transform.scale(s, (25, 25))
+        ASTEROID_SPRITES.append(s)
+
 # Load fonts
 FONT_S = pygame.font.SysFont("Impact", 18)
 FONT_M = pygame.font.SysFont("Impact", 28)
@@ -34,8 +41,7 @@ boltSprite1 = pygame.transform.scale(boltSprite1, (50, 33))
 boltSprite1 = pygame.transform.rotate(boltSprite1, 90)
 
 # Load and transform roid sprites
-roidSprite1 = pygame.image.load('images/asteroid.png')
-roidSprite1 = pygame.transform.scale(roidSprite1, (25,25))
+load_asteroids(4)
 
 class OpeningState(object):
 
@@ -665,6 +671,8 @@ class Asteroid(object):
         self.rect = pygame.Rect(x, -25, 25, 25)
         self.velx = velx
         self.vely = vely
+        
+        self._sprite = ASTEROID_SPRITES[random.randint(0, len(ASTEROID_SPRITES)-1)]
 
         gm.roids.append(self)
         self.explode = False
@@ -698,7 +706,8 @@ class Asteroid(object):
         self.draw()
 
     def draw(self):
-        screen.blit(roidSprite1, self.rect)
+        screen.blit(self._sprite, self.rect)
+            
         if self.explode:
             t = pygame.time.get_ticks() - self.explode
             pygame.draw.circle(screen, (255,255,255), self.rect.center, t/2)
