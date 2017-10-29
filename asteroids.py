@@ -14,9 +14,9 @@ pygame.display.set_caption("Asteroids")
 fpsClock = pygame.time.Clock()
 
 # Load fonts
-FONT16 = pygame.font.SysFont("Comic sans MS", 16)
-FONT26 = pygame.font.SysFont("Comic sans MS", 26)
-FONT36 = pygame.font.SysFont("Comic sans MS", 36)
+FONT_S = pygame.font.SysFont("Impact", 18)
+FONT_M = pygame.font.SysFont("Impact", 28)
+FONT_L = pygame.font.SysFont("Impact", 46)
 
 # Load background sprites
 backgroundObj = pygame.image.load('images/space.png') # Image credit: GameArtGuppy.com
@@ -49,7 +49,7 @@ class OpeningState(object):
         t = float(pygame.time.get_ticks() - self.entering)
         screen.fill((0,0,0))
         gray = min(max(0,int(255*t/500)), 255)
-        text_meteorstorm = FONT36.render("METEOR STORM", False,
+        text_meteorstorm = FONT_L.render("METEOR STORM", False,
                                          (gray,gray,gray))
 
         if t > 500:
@@ -83,37 +83,64 @@ class GameOverState(object):
         self.master = master
         self.active = False
         self.entering = False
-        self._panel = self.get_panel()
         
-    def get_panel(self, btn=False):
+    def get_panel(self, btn_res=False, btn_mm=False):
         panel = pygame.Surface((300,200))
         panel.fill((127,127,127))
-        msgSurfObj = FONT26.render("GAME OVER", False,
+        pygame.draw.rect(panel, (65,65,65), panel.get_rect(), 5)
+        msgSurfObj = FONT_M.render("GAME OVER", False,
                                    (255,255,255))
         msgRectObj = msgSurfObj.get_rect()
         msgRectObj.center = (150, 50)
         panel.blit(msgSurfObj, msgRectObj)
 
-        btn_restart = pygame.Surface((90, 30))
+        msgSurfObj = FONT_S.render("SCORE: " + str(self.master.points), False,
+                                   (255,255,255))
+        msgRectObj = msgSurfObj.get_rect()
+        msgRectObj.center = (150, 75)
+        panel.blit(msgSurfObj, msgRectObj)
+
+        btn_restart = pygame.Surface((115, 30))
         msgSurfObj = None
-        if btn:
+        if btn_res:
             btn_restart.fill((0,0,0))
-            pygame.draw.rect(btn_restart, (65, 65, 65), (3,3, 84, 24), 1)
-            msgSurfObj = FONT16.render("RESTART", False,
+            pygame.draw.rect(btn_restart, (65, 65, 65), (3,3, 109, 24), 1)
+            msgSurfObj = FONT_S.render("RESTART", False,
                                        (255,255,255))
         else:
             btn_restart.fill((255, 255, 255))
-            pygame.draw.rect(btn_restart, (190, 190, 190), (3,3, 84, 24), 1)
-            msgSurfObj = FONT16.render("RESTART", False,
+            pygame.draw.rect(btn_restart, (190, 190, 190), (3,3, 109, 24), 1)
+            msgSurfObj = FONT_S.render("RESTART", False,
                                        (0,0,0))
+
         msgRectObj = msgSurfObj.get_rect()
         msgRectObj.center = btn_restart.get_rect().center
         btn_restart.blit(msgSurfObj, msgRectObj)
 
+        btn_mainmenu = pygame.Surface((115, 30))
+        msgSurfObj = None
+        if btn_mm:
+            btn_mainmenu.fill((0,0,0))
+            pygame.draw.rect(btn_mainmenu, (65, 65, 65), (3,3, 109, 24), 1)
+            msgSurfObj = FONT_S.render("MAIN MENU", False,
+                                       (255,255,255))
+        else:
+            btn_mainmenu.fill((255, 255, 255))
+            pygame.draw.rect(btn_mainmenu, (190, 190, 190), (3,3, 109, 24), 1)
+            msgSurfObj = FONT_S.render("MAIN MENU", False,
+                                       (0,0,0))
+
+        msgRectObj = msgSurfObj.get_rect()
+        msgRectObj.center = btn_mainmenu.get_rect().center
+        btn_mainmenu.blit(msgSurfObj, msgRectObj)
+
         btn_res_rect = btn_restart.get_rect()
-        btn_res_rect.center = (150, 100)
+        btn_res_rect.center = (150, 110)
         panel.blit(btn_restart, btn_res_rect)
-        
+
+        btn_mm_rect = btn_mainmenu.get_rect()
+        btn_mm_rect.center = (150, 145)
+        panel.blit(btn_mainmenu, btn_mm_rect)
 
         return panel.convert()
 
@@ -132,15 +159,16 @@ class GameOverState(object):
             a.draw()
 
         # Do animation
+        panel = self.get_panel()
         if t > 500:
-            panel_rect = self._panel.get_rect()
+            panel_rect = panel.get_rect()
             panel_rect.center = (187, 300)
-            screen.blit(self._panel, panel_rect)
+            screen.blit(panel, panel_rect)
             
             self.active = True
             self.entering = False
         else:
-            panel = pygame.transform.rotozoom(self._panel, 0, t/500)
+            panel = pygame.transform.rotozoom(panel, 0, t/500)
             panel_rect = panel.get_rect()
             panel_rect.center = (187, 100+ 200*t/500)
             screen.blit(panel, panel_rect)
@@ -149,18 +177,27 @@ class GameOverState(object):
         if self.active:
             screen.blit(backgroundObj, (0,0))
 
-            btn_rect = pygame.Rect((0,0),(90,30))
-            btn_rect.center = (187, 300)
-            btn_active = btn_rect.collidepoint(pygame.mouse.get_pos())
-            panel = self.get_panel(btn=btn_active)
+            btn_res_rect = pygame.Rect((0,0),(115,30))
+            btn_res_rect.center = (187, 310)
+            btn_res_active = btn_res_rect.collidepoint(pygame.mouse.get_pos())
+
+            btn_mm_rect = pygame.Rect((0,0),(115,30))
+            btn_mm_rect.center = (187, 345)
+            btn_mm_active = btn_mm_rect.collidepoint(pygame.mouse.get_pos())
+            
+            panel = self.get_panel(btn_res_active, btn_mm_active)
 
             panel_rect = panel.get_rect()
             panel_rect.center = (187, 300)
 
             screen.blit(panel, panel_rect)
 
-            if btn_active and pygame.mouse.get_pressed()[0]:
+            if btn_res_active and pygame.mouse.get_pressed()[0]:
                 self.master.goto(self.master.playingstate)
+
+            if btn_mm_active and pygame.mouse.get_pressed()[0]:
+                self.master.goto(self.master.openingstate)
+                
         else: # Not finished entering state
             self.enter()
     def leave(self):
@@ -193,6 +230,9 @@ class PlayingState(object):
                     self.master.roidrate = 10
             if keys[K_DOWN]:
                 self.master.roidrate *= 2
+
+            if keys[K_RETURN]:
+                self.master.goto(self.master.gameoverstate)
             if  keys[K_LEFT] or keys[K_a]:
                 self.master.player.move(-PLAYERMOVESPEED,0)
             if keys[K_RIGHT] or keys[K_d]:
@@ -214,7 +254,7 @@ class PlayingState(object):
             self.master.player.update()
 
             # Render poitns
-            msgSurfObj = FONT16.render("Points: " + str(self.master.points), False, (255,255,255))
+            msgSurfObj = FONT_S.render("SCORE: " + str(self.master.points), False, (255,255,255))
             msgRectObj = msgSurfObj.get_rect()
             msgRectObj.topleft = (3, 3)
             screen.blit(msgSurfObj, msgRectObj)
