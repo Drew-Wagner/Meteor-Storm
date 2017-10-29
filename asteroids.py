@@ -34,8 +34,14 @@ boltSprite1 = pygame.transform.scale(boltSprite1, (50, 33))
 boltSprite1 = pygame.transform.rotate(boltSprite1, 90)
 
 # Load and transform roid sprites
-roidSprite1 = pygame.image.load('images/asteroid.png')
+roidSprite1 = pygame.image.load('images/asteroids/asteroid1.png')
 roidSprite1 = pygame.transform.scale(roidSprite1, (25,25))
+roidSprite2 = pygame.image.load('images/asteroids/asteroid2.png')
+roidSprite2 = pygame.transform.scale(roidSprite2, (25,25))
+roidSprite3 = pygame.image.load('images/asteroids/asteroid3.png')
+roidSprite3 = pygame.transform.scale(roidSprite3, (25,25))
+roidSprite4 = pygame.image.load('images/asteroids/asteroid4.png')
+roidSprite4 = pygame.transform.scale(roidSprite4, (25,25))
 
 class OpeningState(object):
 
@@ -665,6 +671,16 @@ class Asteroid(object):
         self.rect = pygame.Rect(x, -25, 25, 25)
         self.velx = velx
         self.vely = vely
+        
+        tex = random.randint(0, 3)
+        if tex == 0:
+            self._sprite = roidSprite1
+        elif tex == 1:
+            self._sprite = roidSprite2
+        elif tex == 2:
+            self._sprite = roidSprite3
+        elif tex == 3:
+            self._sprite = roidSprite4
 
         gm.roids.append(self)
         self.explode = False
@@ -698,7 +714,8 @@ class Asteroid(object):
         self.draw()
 
     def draw(self):
-        screen.blit(roidSprite1, self.rect)
+        screen.blit(self._sprite, self.rect)
+            
         if self.explode:
             t = pygame.time.get_ticks() - self.explode
             pygame.draw.circle(screen, (255,255,255), self.rect.center, t/2)
