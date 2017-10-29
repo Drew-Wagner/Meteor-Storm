@@ -94,7 +94,10 @@ class OpeningState(object):
         self.master._enter(state)
 
 class MainMenuState(object):
-
+    PLAY = (187, 250)
+    INST = (187, 310)
+    LEAD = (187, 370)
+    QUIT = (187, 430)
     def __init__(self, master):
         self.master = master
         self._prev = None
@@ -108,7 +111,7 @@ class MainMenuState(object):
 
         return black.convert()
 
-    def draw(self, btn_p=False, btn_ins=False, btn_q=False):
+    def draw(self, btn_p=False, btn_ins=False, btn_l=False, btn_q=False):
         # Draw background
         screen.blit(backgroundObj, (0,0))
 
@@ -142,7 +145,7 @@ class MainMenuState(object):
         btn_play.blit(msgSurfObj, msg_rect)
 
         btn_play_rect = btn_play.get_rect()
-        btn_play_rect.center = (187, 250)
+        btn_play_rect.center = self.PLAY
         screen.blit(btn_play, btn_play_rect)
 
         # Draw Instructions button
@@ -163,8 +166,29 @@ class MainMenuState(object):
         btn_instructions.blit(msgSurfObj, msg_rect)
 
         btn_ins_rect = btn_instructions.get_rect()
-        btn_ins_rect.center = (187, 350)
+        btn_ins_rect.center = self.INST
         screen.blit(btn_instructions, btn_ins_rect)
+
+        # Draw Leaderboard button
+        btn_lead = pygame.Surface((300, 50))
+        msgSurfObj = None
+        if btn_l:
+            btn_lead.fill((0,0,0))
+            pygame.draw.rect(btn_lead, (65, 65, 65), (6,6, 288, 38), 2)
+            msgSurfObj = FONT_M.render("LEADER BOARD", True,
+                                       (255,255,255))
+        else:
+            btn_lead.fill((255, 255, 255))
+            pygame.draw.rect(btn_lead, (190, 190, 190), (6,6, 288, 38), 2)
+            msgSurfObj = FONT_M.render("LEADER BOARD", True,
+                                       (0,0,0))
+        msg_rect = msgSurfObj.get_rect()
+        msg_rect.center = btn_lead.get_rect().center
+        btn_lead.blit(msgSurfObj, msg_rect)
+
+        btn_lead_rect = btn_lead.get_rect()
+        btn_lead_rect.center = self.LEAD
+        screen.blit(btn_lead, btn_lead_rect)
 
         # Draw QUIT button
         btn_quit = pygame.Surface((300, 50))
@@ -184,8 +208,15 @@ class MainMenuState(object):
         btn_quit.blit(msgSurfObj, msg_rect)
 
         btn_quit_rect = btn_quit.get_rect()
-        btn_quit_rect.center = (187, 450)
+        btn_quit_rect.center = self.QUIT
         screen.blit(btn_quit, btn_quit_rect)
+
+        # Signature
+        msg = FONT_S.render("Created by Drew Wagner", True, (255,255,255))
+        msg_rect = msg.get_rect()
+        msg_rect.bottom = 600
+        msg_rect.centerx = 187
+        screen.blit(msg, msg_rect)
 
     def enter(self, prev):
         self._prev = prev
@@ -207,15 +238,19 @@ class MainMenuState(object):
     def update(self):
         if self.active:
             btn_play_rect = pygame.Rect((0,0),(300,50))
-            btn_play_rect.center = (187, 250)
+            btn_play_rect.center = self.PLAY
             btn_play_active = btn_play_rect.collidepoint(pygame.mouse.get_pos())
 
             btn_inst_rect = pygame.Rect((0,0),(300,50))
-            btn_inst_rect.center = (187, 350)
+            btn_inst_rect.center = self.INST
             btn_inst_active = btn_inst_rect.collidepoint(pygame.mouse.get_pos())
+
+            btn_lead_rect = pygame.Rect((0,0),(300,50))
+            btn_lead_rect.center = self.LEAD
+            btn_lead_active = btn_lead_rect.collidepoint(pygame.mouse.get_pos())
             
             btn_quit_rect = pygame.Rect((0,0),(300,50))
-            btn_quit_rect.center = (187, 450)
+            btn_quit_rect.center = self.QUIT
             btn_quit_active = btn_quit_rect.collidepoint(pygame.mouse.get_pos())
 
             flag = pygame.mouse.get_pressed()[0]
@@ -224,12 +259,14 @@ class MainMenuState(object):
                     self.master.goto(self.master.playingstate)
                 elif btn_inst_active:
                     pass
+                elif btn_lead_active:
+                    self.master.goto(self.master.leaderboardstate)
                 elif btn_quit_active:
                     # TODO goto exit state
                     pygame.quit()
                     sys.exit()
             
-            self.draw(btn_play_active, btn_inst_active, btn_quit_active)
+            self.draw(btn_play_active, btn_inst_active, btn_lead_active, btn_quit_active)
         else:
             self.enter(self._prev)
 
@@ -704,6 +741,7 @@ class SaveScoreState(object):
             
             panel_rect = panel.get_rect()
             panel_rect.center = (187, 300)
+            screen.blit(backgroundObj, (0,0))
             screen.blit(panel, panel_rect)
 
             self.input.update()
@@ -804,6 +842,8 @@ class LeaderBoardState(object):
             
             panel_rect = panel.get_rect()
             panel_rect.center = (187, 300)
+
+            screen.blit(backgroundObj, (0,0))
             screen.blit(panel, panel_rect)
 
             if btn_back_active and pygame.mouse.get_pressed()[0]:
