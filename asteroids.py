@@ -13,6 +13,13 @@ pygame.display.set_caption("Asteroids")
 
 fpsClock = pygame.time.Clock()
 
+ASTEROID_SPRITES = []
+def load_asteroids(num):
+    for i in range(num):
+        s = pygame.image.load('images/asteroids/asteroid'+str(i+1)+'.png')
+        s = pygame.transform.scale(s, (25, 25))
+        ASTEROID_SPRITES.append(s)
+
 # Load fonts
 FONT_S = pygame.font.SysFont("Impact", 18)
 FONT_M = pygame.font.SysFont("Impact", 28)
@@ -34,14 +41,7 @@ boltSprite1 = pygame.transform.scale(boltSprite1, (50, 33))
 boltSprite1 = pygame.transform.rotate(boltSprite1, 90)
 
 # Load and transform roid sprites
-roidSprite1 = pygame.image.load('images/asteroids/asteroid1.png')
-roidSprite1 = pygame.transform.scale(roidSprite1, (25,25))
-roidSprite2 = pygame.image.load('images/asteroids/asteroid2.png')
-roidSprite2 = pygame.transform.scale(roidSprite2, (25,25))
-roidSprite3 = pygame.image.load('images/asteroids/asteroid3.png')
-roidSprite3 = pygame.transform.scale(roidSprite3, (25,25))
-roidSprite4 = pygame.image.load('images/asteroids/asteroid4.png')
-roidSprite4 = pygame.transform.scale(roidSprite4, (25,25))
+load_asteroids(4)
 
 class OpeningState(object):
 
@@ -672,15 +672,7 @@ class Asteroid(object):
         self.velx = velx
         self.vely = vely
         
-        tex = random.randint(0, 3)
-        if tex == 0:
-            self._sprite = roidSprite1
-        elif tex == 1:
-            self._sprite = roidSprite2
-        elif tex == 2:
-            self._sprite = roidSprite3
-        elif tex == 3:
-            self._sprite = roidSprite4
+        self._sprite = ASTEROID_SPRITES[random.randint(0, len(ASTEROID_SPRITES)-1)]
 
         gm.roids.append(self)
         self.explode = False
