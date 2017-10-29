@@ -75,8 +75,9 @@ class OpeningState(object):
         else: # timer isn't finished
             self.enter()
 
-    def leave(self):
+    def leave(self, state):
         self.active = False
+        self.master._enter(state)
 
 class GameOverState(object):
 
@@ -203,9 +204,10 @@ class GameOverState(object):
                 
         else: # Not finished timer state
             self.enter()
-    def leave(self):
+    def leave(self, state):
         self.master.points = 0
         self.active = False
+        self.master._enter(state)
 
 class PauseState(object):
 
@@ -299,9 +301,9 @@ class PauseState(object):
         else:
             self.enter()
 
-    def leave(self):
+    def leave(self, state):
         self.active = False
-    
+        self.master._enter(state)
 
 class PlayingState(object):
 
@@ -364,8 +366,9 @@ class PlayingState(object):
             # Decrease new asteroid timer
             self.master.newroid = max(self.master.newroid - fpsClock.get_time(), 0)
 
-    def leave(self):
+    def leave(self, state):
         self.active = False
+        self.master._enter(state)
 
 
 class GameManager(object):
@@ -382,14 +385,13 @@ class GameManager(object):
         self.pausestate = PauseState(self)
         self.gameoverstate = GameOverState(self)
 
-        self._state = None
-
         self.player = Player(self)
         
         self.newroid = 0
         self.roidrate = 1000 # New asteroid every 1000 milliseconds
-        
-        self.goto(self.openingstate)
+
+        self._state = self.openingstate
+        self._state.enter()
 
     def update(self):
         if self._state:
@@ -397,9 +399,11 @@ class GameManager(object):
 
     def get_state(self):
         return self._state.name
+    
     def goto(self, state):
-        if self._state:
-            self._state.leave()
+        self._state.leave(state)
+        
+    def _enter(self, state):
         self._state = state
         self._state.enter()
         
