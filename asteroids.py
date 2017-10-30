@@ -9,7 +9,7 @@ PLAYERMOVESPEED = 15
 
 pygame.init()
 screen = pygame.display.set_mode( (WIDTH, HEIGHT) )
-pygame.display.set_caption("Asteroids")
+pygame.display.set_caption("Meteor Storm - by Drew Wagner")
 
 fpsClock = pygame.time.Clock()
 
