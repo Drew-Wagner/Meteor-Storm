@@ -1100,7 +1100,12 @@ class Asteroid(object):
                     self.gm.points += 5
             elif type(e) == Asteroid and e != self and not self.explode:
                 if self.rect.colliderect(e.rect):
-                    self.explode = pygame.time.get_ticks()
+                    # TODO Fix Choppiness
+                    self.velx = -self.velx
+                    e.velx = -e.velx
+                    overlap = (self.rect.centerx-e.rect.centerx)/2
+                    e.rect.centerx -= overlap
+                    self.rect.centerx += overlap
             elif type(e) == Player:
                 if self.rect.colliderect(e.rect) and not self.explode:
                     self.explode = pygame.time.get_ticks()
