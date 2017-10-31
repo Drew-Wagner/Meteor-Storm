@@ -159,7 +159,7 @@ class MainMenuState(object):
     
     Attributes:
         master: the attached GameManager instance.
-        name: "MainMenu"
+        name: "MAINMENU"
         active: Flag indicating whether the state is active
         timer: Counts ticks for animations
         prev: The previous state
@@ -376,7 +376,7 @@ class GameOverState(object):
 
     Attributes:
         master: the attached GameManager instance.
-        name: "MainMenu"
+        name: "GAMEOVER"
         active: Flag indicating whether the state is active
         timer: Counts ticks for animations
         prev: The previous state
@@ -584,7 +584,7 @@ class PauseState(object):
 
     Attributes:
         master: the attached GameManager instance.
-        name: "MainMenu"
+        name: "PAUSED"
         active: Flag indicating whether the state is active
         timer: Counts ticks for animations
         prev: The previous state
@@ -886,7 +886,7 @@ class SaveScoreState(object):
 
     Attributes:
         master: the attached GameManager instance.
-        name: "MainMenu"
+        name: "SAVESCORE"
         active: Flag indicating whether the state is active
         timer: Counts ticks for animations
         prev: The previous state
@@ -1001,7 +1001,7 @@ class LeaderBoardState(object):
     Displays the top 11 scores. Back button returns to previous state.
     Attributes:
         master: the attached GameManager instance.
-        name: "MainMenu"
+        name: "LEADERBOARD"
         active: Flag indicating whether the state is active
         timer: Counts ticks for animations
         prev: The previous state
@@ -1135,7 +1135,7 @@ class PlayingState(object):
 
     Attributes:
         master: the attached GameManager instance.
-        name: "MainMenu"
+        name: "PLAYING"
         active: Flag indicating whether the state is active
         timer: Counts ticks for animations (Currently unused)
         prev: The previous state
