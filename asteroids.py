@@ -95,6 +95,7 @@ class OpeningState(object):
         self.prev = None
 
     def draw(self, dt):
+        """Draws the opening animation"""
         # Begin drawing animation
         screen.fill((0, 0, 0))
         gray = min(max(0, int(255 * dt / 500)), 255)
@@ -483,6 +484,37 @@ class GameOverState(object):
         # Convert panel to more efficient surface and return
         return panel.convert()
 
+    def draw_entry(self, dt):
+        """Draws entry animation"""
+        screen.blit(backgroundObj, (0, 0))
+
+        # Explode remaining asteroids and player
+        for a in self.master.roids:
+            if not a.explode:
+                a.explode = self.timer
+            a.vely = 20
+            a.draw()
+        if not self.master.player.explode:
+            self.master.player.explode = self.timer
+        # TODO Change to player.draw() once re-implemented
+        self.master.player.update()
+
+        # Do animation
+        if self.master.points > self.master.highscore:
+            new_high = True
+        else:
+            new_high = False
+        panel = self.get_panel(new_high=new_high)
+        if dt < 500:
+            panel = pygame.transform.rotozoom(panel, 0, dt / 500)
+            panel_rect = panel.get_rect()
+            panel_rect.center = (187, 100 + 200 * dt / 500)
+            screen.blit(panel, panel_rect)
+        else:
+            panel_rect = panel.get_rect()
+            panel_rect.center = (187, 300)
+            screen.blit(panel, panel_rect)
+
     def enter(self, prev):
         """Executes on entering the state
 
@@ -494,39 +526,12 @@ class GameOverState(object):
             self.timer = pygame.time.get_ticks()
         dt = float(pygame.time.get_ticks() - self.timer)
 
-        screen.blit(backgroundObj, (0, 0))
-
-        # Explode remaining asteroids and player
-        for a in self.master.roids:
-            if not a.explode:
-                a.explode = self.timer
-            a.vely = 20
-            a.draw()
-        if not self.master.player.explode:
-            self.master.player.explode = self.timer
-        self.master.player.update()
-
-        # Do animation
-        if self.master.points > self.master.highscore:
-            new_high = True
-        else:
-            new_high = False
-        panel = self.get_panel(new_high=new_high)
-
-        if dt < 500:
-            panel = pygame.transform.rotozoom(panel, 0, dt / 500)
-            panel_rect = panel.get_rect()
-            panel_rect.center = (187, 100 + 200 * dt / 500)
-            screen.blit(panel, panel_rect)
-        # Finished entering
-        else:
-            panel_rect = panel.get_rect()
-            panel_rect.center = (187, 300)
-            screen.blit(panel, panel_rect)
-
+        if dt > 500:
             self.master.player.explode = False
             self.active = True
             self.timer = False
+        else:
+            self.draw_entry(dt)
 
     def update(self):
         """State update"""
