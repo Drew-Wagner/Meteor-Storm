@@ -9,6 +9,9 @@ WIDTH = 375
 HEIGHT = 600
 FPS = 30
 PLAYER_MOVE_SPEED = 15
+ASTEROID_MAX_X = 5
+ASTEROID_MAX_Y = 8
+ASTEROID_MIN_Y = 2
 
 # Create lists to store sprites
 ASTEROID_SPRITES = []
@@ -1168,7 +1171,6 @@ class PlayingState(object):
         master: the attached GameManager instance.
         name: "PLAYING"
         active: Flag indicating whether the state is active
-        timer: Counts ticks for animations (Currently unused)
         prev: The previous state
     """
 
@@ -1178,6 +1180,9 @@ class PlayingState(object):
         self.name = "PLAYING"
         self.active = False
         self.prev = None
+
+        self._start_time = 0 # pygame time when gameplay started
+        self._prev_points = 0# score in previous update
 
     # noinspection PyMethodMayBeStatic
     def draw_lives(self, n):
@@ -1193,6 +1198,10 @@ class PlayingState(object):
             screen.blit(heartSprite, r)
             r.left -= 28
 
+    def get_time(self):
+        """Get time since the beginning of gameplay"""
+        return pygame.time.get_ticks() - self._start_time
+
     def enter(self, prev):
         """Handles state entry
 
@@ -1201,14 +1210,25 @@ class PlayingState(object):
         """
         self.prev = prev
         self.master.highscore = self.master.get_highscore()
+
+        if self.prev is self.master.mainmenustate or self.prev is self.master.gameoverstate:
+            self._start_time = pygame.time.get_ticks()
         self.active = True
 
     def update(self):
         """Handles game execution"""
+        global ASTEROID_MAX_X, ASTEROID_MIN_Y, ASTEROID_MAX_Y
+
         if self.active:
+            if self.master.points != self._prev_points:
+                self._prev_points = self.master.points
+
             # Asteroid generation
             if self.master.newroid == 0:
-                Asteroid(self.master, random.randint(0, 14) * 25, random.randint(-5, 5), random.randint(2, 8))
+                Asteroid(
+                    self.master, random.randint(0, 14) * 25,
+                    random.randint(-ASTEROID_MAX_X, ASTEROID_MAX_X),
+                    random.randint(ASTEROID_MIN_Y, ASTEROID_MAX_Y))
                 self.master.newroid = self.master.roidrate
 
             # Keybindings
@@ -1256,6 +1276,7 @@ class PlayingState(object):
                         a.explode = pygame.time.get_ticks()
 
                 # Asteroid-asteroid collision check
+                # TODO Collision is not working properly (Asteroids double collide)
                 for a2 in self.master.roids:
                     if a is not a2:
                         if a.rect.colliderect(a2.rect):
@@ -1295,6 +1316,17 @@ class PlayingState(object):
 
             # Decrease new asteroid timer
             self.master.newroid = max(self.master.newroid - fpsClock.get_time(), 0)
+
+            # Progressive difficulty
+            if self.master.points < 750:
+                # Minimum delay: 250 milliseconds
+                self.master.roidrate = 1000 - self.master.points
+            if self.master.points > 550:
+                if self.master.points % 150 == 0 and self.master.points != self._prev_points:
+                    ASTEROID_MAX_X += 1
+                    ASTEROID_MAX_Y += 1
+                if self.master.points % 300 == 0 and self.master.points != self._prev_points:
+                    ASTEROID_MIN_Y += 1
 
     def leave(self, state):
         """Handles state exit
@@ -1539,7 +1571,6 @@ class Asteroid(object):
         self.master.roids.append(self)
         self.explode = False
 
-    # TODO Move collision handling to PlayingState
     def update(self):
         """Handles asteroid movement and collisions"""
         self.rect = self.rect.move(self.velx, self.vely)
