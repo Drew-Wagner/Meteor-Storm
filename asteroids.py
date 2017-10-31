@@ -496,8 +496,7 @@ class GameOverState(object):
             a.draw()
         if not self.master.player.explode:
             self.master.player.explode = self.timer
-        # TODO Change to player.draw() once re-implemented
-        self.master.player.update()
+        self.master.player.draw()
 
         # Do animation
         if self.master.points > self.master.highscore:
@@ -1448,10 +1447,6 @@ class Player(object):
         """Handles drawing"""
         self.can_fire = max(self.can_fire - 1, 0)
         self.draw()
-        if self.explode:
-            dt = pygame.time.get_ticks() - self.explode
-            if dt < 150:
-                pygame.draw.circle(screen, (255, 127, 31), self.rect.center, dt / 2)
 
     def draw(self):
         """Draws Player sprite animation"""
@@ -1461,7 +1456,10 @@ class Player(object):
                 screen.blit(playerSprite1, r)
             else:
                 screen.blit(playerSprite2, r)
-
+        else:
+            dt = pygame.time.get_ticks() - self.explode
+            if dt < 150:
+                pygame.draw.circle(screen, (255, 127, 31), self.rect.center, dt / 2)
 
 
 class Bolt(object):
