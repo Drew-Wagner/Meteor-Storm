@@ -94,6 +94,27 @@ class OpeningState(object):
         self.timer = False
         self.prev = None
 
+    def draw(self, dt):
+        """Draws the opening animation"""
+        # Begin drawing animation
+        screen.fill((0, 0, 0))
+        gray = min(max(0, int(255 * dt / 500)), 255)
+        lbl_meteorstorm = FONT_L.render("METEOR STORM", True,
+                                        (gray, gray, gray))
+
+        # Opening fade-in animation
+        if dt < 500:
+            lbl_meteorstorm = pygame.transform.rotozoom(
+                lbl_meteorstorm, 0, dt / 500)
+            rect_meteorstorm = lbl_meteorstorm.get_rect()
+            rect_meteorstorm.center = (187, 300)
+            screen.blit(lbl_meteorstorm, rect_meteorstorm)
+        # Fade-in complete
+        else:
+            rect_meteorstorm = lbl_meteorstorm.get_rect()
+            rect_meteorstorm.center = (187, 300)
+            screen.blit(lbl_meteorstorm, rect_meteorstorm)
+
     def enter(self, prev):
         """Executed on entering the state
 
@@ -111,28 +132,13 @@ class OpeningState(object):
             self.timer = pygame.time.get_ticks()
         dt = float(pygame.time.get_ticks() - self.timer)
 
-        # Begin drawing animation
-        screen.fill((0, 0, 0))
-        gray = min(max(0, int(255 * dt / 500)), 255)
-        lbl_meteorstorm = FONT_L.render("METEOR STORM", True,
-                                        (gray, gray, gray))
-
-        if dt > 500:
-            if dt > 1000:
-                # Finished entering state
-                self.active = True
-                self.timer = False
-            else:
-                rect_meteorstorm = lbl_meteorstorm.get_rect()
-                rect_meteorstorm.center = (187, 300)
-                screen.blit(lbl_meteorstorm, rect_meteorstorm)
+        if dt > 1000:
+            # Finished entering state
+            self.active = True
+            self.timer = False
         else:
-            # Opening Animation
-            lbl_meteorstorm = pygame.transform.rotozoom(
-                lbl_meteorstorm, 0, dt / 500)
-            rect_meteorstorm = lbl_meteorstorm.get_rect()
-            rect_meteorstorm.center = (187, 300)
-            screen.blit(lbl_meteorstorm, rect_meteorstorm)
+            self.draw(dt)
+
 
     def update(self):
         """State update"""
@@ -478,6 +484,37 @@ class GameOverState(object):
         # Convert panel to more efficient surface and return
         return panel.convert()
 
+    def draw_entry(self, dt):
+        """Draws entry animation"""
+        screen.blit(backgroundObj, (0, 0))
+
+        # Explode remaining asteroids and player
+        for a in self.master.roids:
+            if not a.explode:
+                a.explode = self.timer
+            a.vely = 20
+            a.draw()
+        if self.prev is not self.master.leaderboardstate:
+            if not self.master.player.explode:
+                self.master.player.explode = self.timer
+            self.master.player.draw()
+
+        # Do animation
+        if self.master.points > self.master.highscore:
+            new_high = True
+        else:
+            new_high = False
+        panel = self.get_panel(new_high=new_high)
+        if dt < 500:
+            panel = pygame.transform.rotozoom(panel, 0, dt / 500)
+            panel_rect = panel.get_rect()
+            panel_rect.center = (187, 100 + 200 * dt / 500)
+            screen.blit(panel, panel_rect)
+        else:
+            panel_rect = panel.get_rect()
+            panel_rect.center = (187, 300)
+            screen.blit(panel, panel_rect)
+
     def enter(self, prev):
         """Executes on entering the state
 
@@ -489,39 +526,12 @@ class GameOverState(object):
             self.timer = pygame.time.get_ticks()
         dt = float(pygame.time.get_ticks() - self.timer)
 
-        screen.blit(backgroundObj, (0, 0))
-
-        # Explode remaining asteroids and player
-        for a in self.master.roids:
-            if not a.explode:
-                a.explode = self.timer
-            a.vely = 20
-            a.draw()
-        if not self.master.player.explode:
-            self.master.player.explode = self.timer
-        self.master.player.update()
-
-        # Do animation
-        if self.master.points > self.master.highscore:
-            new_high = True
-        else:
-            new_high = False
-        panel = self.get_panel(new_high=new_high)
-
-        if dt < 500:
-            panel = pygame.transform.rotozoom(panel, 0, dt / 500)
-            panel_rect = panel.get_rect()
-            panel_rect.center = (187, 100 + 200 * dt / 500)
-            screen.blit(panel, panel_rect)
-        # Finished entering
-        else:
-            panel_rect = panel.get_rect()
-            panel_rect.center = (187, 300)
-            screen.blit(panel, panel_rect)
-
+        if dt > 500:
             self.master.player.explode = False
             self.active = True
             self.timer = False
+        else:
+            self.draw_entry(dt)
 
     def update(self):
         """State update"""
@@ -665,6 +675,38 @@ class PauseState(object):
 
         return panel.convert()
 
+    def draw_entry(self, dt):
+        """Draws entry animation"""
+        # Draw background
+        screen.blit(backgroundObj, (0, 0))
+
+        # Do animation
+        panel = self.get_panel()
+
+        if dt < 250:
+            panel = pygame.transform.rotozoom(panel, 0, dt / 250)
+            panel_rect = panel.get_rect()
+            panel_rect.center = (187, 300)
+            screen.blit(panel, panel_rect)
+        else:
+            panel_rect = panel.get_rect()
+            panel_rect.center = (187, 300)
+            screen.blit(panel, panel_rect)
+
+    def draw_exit(self, dt):
+        """Draws exit animation"""
+        # Draw background
+        screen.blit(backgroundObj, (0, 0))
+
+        # Do animation
+        panel = self.get_panel()
+        if dt < 250:
+            panel = pygame.transform.rotozoom(panel, 0, (250 - dt) / 250)
+            panel_rect = panel.get_rect()
+            panel_rect.center = (187, 300)
+            screen.blit(panel, panel_rect)
+
+
     def enter(self, prev):
         """Handles state entry
 
@@ -676,24 +718,11 @@ class PauseState(object):
             self.timer = pygame.time.get_ticks()
         dt = float(pygame.time.get_ticks() - self.timer)
 
-        # Draw background
-        screen.blit(backgroundObj, (0, 0))
-
-        # Do animation
-        panel = self.get_panel()
-        if dt < 250:
-            panel = pygame.transform.rotozoom(panel, 0, dt / 250)
-            panel_rect = panel.get_rect()
-            panel_rect.center = (187, 300)
-            screen.blit(panel, panel_rect)
-        # State entry complete
-        else:
-            panel_rect = panel.get_rect()
-            panel_rect.center = (187, 300)
-            screen.blit(panel, panel_rect)
-
+        if dt > 250:
             self.active = True
             self.timer = False
+        else:
+            self.draw_entry(dt)
 
     def update(self):
         """Handles state update"""
@@ -750,23 +779,14 @@ class PauseState(object):
                 self.timer = pygame.time.get_ticks()
             dt = float(pygame.time.get_ticks() - self.timer)
 
-            # Draw background
-            screen.blit(backgroundObj, (0, 0))
-
-            # Do animation
-            panel = self.get_panel()
-            if dt < 250:
-                panel = pygame.transform.rotozoom(panel, 0, (250 - dt) / 250)
-                panel_rect = panel.get_rect()
-                panel_rect.center = (187, 300)
-                screen.blit(panel, panel_rect)
-            # State exit complete, go to next state
-            else:
+            if dt > 250:
                 self.leaving = False
                 self._nextstate = False
                 self.active = False
                 self.timer = False
                 self.master._enter(state)
+            else:
+                self.draw_exit(dt)
 
 
 class Input(object):
@@ -1147,7 +1167,7 @@ class PlayingState(object):
         self.active = False
         self.prev = None
 
-    def drawlives(self, n):
+    def draw_lives(self, n):
         """Draws 'live' icons in upper right corner
 
         Args:
@@ -1256,7 +1276,7 @@ class PlayingState(object):
             # Render lives
             lives = self.master.player.lives
             if lives > 0:
-                self.drawlives(lives)
+                self.draw_lives(lives)
             else:
                 self.master.goto(self.master.gameoverstate)
 
@@ -1428,10 +1448,6 @@ class Player(object):
         """Handles drawing"""
         self.can_fire = max(self.can_fire - 1, 0)
         self.draw()
-        if self.explode:
-            dt = pygame.time.get_ticks() - self.explode
-            if dt < 150:
-                pygame.draw.circle(screen, (255, 127, 31), self.rect.center, dt / 2)
 
     def draw(self):
         """Draws Player sprite animation"""
@@ -1441,7 +1457,10 @@ class Player(object):
                 screen.blit(playerSprite1, r)
             else:
                 screen.blit(playerSprite2, r)
-
+        else:
+            dt = pygame.time.get_ticks() - self.explode
+            if dt < 150:
+                pygame.draw.circle(screen, (255, 127, 31), self.rect.center, dt / 2)
 
 
 class Bolt(object):
