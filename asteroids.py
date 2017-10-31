@@ -30,10 +30,16 @@ def load_asteroids(num):
         num: An integer indicating how many sprites to load.
     """
     for i in range(num):
-        # TODO(Drew) Stop if images don't exist
-        s = pygame.image.load('images/asteroids/asteroid' + str(i + 1) + '.png')
-        s = pygame.transform.scale(s, (25, 25))
-        ASTEROID_SPRITES.append(s)
+        try:
+            s = pygame.image.load('images/asteroids/asteroid' + str(i + 1) + '.png')
+        except pygame.error:
+            if ASTEROID_SPRITES:
+                break
+            else:
+                raise Exception("Could not load asteroid sprites.")
+        else:
+            s = pygame.transform.scale(s, (25, 25))
+            ASTEROID_SPRITES.append(s)
 
 
 # Load fonts
@@ -171,7 +177,6 @@ class MainMenuState(object):
         self.timer = False
         self.prev = None
 
-    # TODO(Drew) Implement full overlay
     def black(self):
         """Returns Overlay from opening scene for fade-out"""
         black = pygame.Surface((WIDTH, HEIGHT))
@@ -345,7 +350,7 @@ class MainMenuState(object):
                 elif btn_lead_active:
                     self.master.goto(self.master.leaderboardstate)
                 elif btn_quit_active:
-                    # TODO goto exit state
+                    # TODO goto quit state once QuitState is implemented
                     pygame.quit()
                     sys.exit()
 
@@ -487,12 +492,14 @@ class GameOverState(object):
         screen.blit(backgroundObj, (0, 0))
 
         # Explode remaining asteroids and player
-        # TODO Explode player
         for a in self.master.roids:
             if not a.explode:
                 a.explode = self.timer
             a.vely = 20
             a.draw()
+        if not self.master.player.explode:
+            self.master.player.explode = self.timer
+        self.master.player.update()
 
         # Do animation
         if self.master.points > self.master.highscore:
@@ -512,6 +519,7 @@ class GameOverState(object):
             panel_rect.center = (187, 300)
             screen.blit(panel, panel_rect)
 
+            self.master.player.explode = False
             self.active = True
             self.timer = False
 
@@ -718,10 +726,10 @@ class PauseState(object):
                     self.master.goto(self.master.mainmenustate)
 
             # Resume on 'Escape' key press
-            # TODO Convert to KEYDOWN event
-            keys = pygame.key.get_pressed()
-            if keys[K_ESCAPE]:
-                self.master.goto(self.master.playingstate)
+            keys_pressed = pygame.event.get(KEYDOWN)
+            for e in keys_pressed:
+                if e.key == K_ESCAPE:
+                    self.master.goto(self.master.playingstate)
         elif self.leaving:
             self.leave(self._nextstate)
         else:
@@ -764,113 +772,113 @@ class PauseState(object):
 class Input(object):
     """Rudimentary text entry object for pygame
 
-    TODO Shift, Special Characters
+    TODO Shift, Special characters, Improve speed
     Attributes:
         maxwidth: Maximum number of characters
         font: Font used by the object
             Defaut - FONT_MONO_M
-        text: text contained by the object
+        _text: text contained by the object
     """
 
     def __init__(self, maxwidth=10, font=FONT_MONO_M):
         self.maxwidth = maxwidth
         self.font = font
-        self.text = ""
+        self._text = ""
 
-    # TODO Make text private and add getter
+    def get_text(self):
+        """Getter for self._text"""
+        return self._text
+
     def update(self):
         """Method for listening for key input"""
         keys_pressed = pygame.event.get(KEYDOWN)
         for e in keys_pressed:
-            if len(self.text) < self.maxwidth:
+            if len(self._text) < self.maxwidth:
                 if e.key == K_a:
-                    self.text += "a"
+                    self._text += "a"
                 elif e.key == K_b:
-                    self.text += "b"
+                    self._text += "b"
                 elif e.key == K_c:
-                    self.text += "c"
+                    self._text += "c"
                 elif e.key == K_d:
-                    self.text += "d"
+                    self._text += "d"
                 elif e.key == K_e:
-                    self.text += "e"
+                    self._text += "e"
                 elif e.key == K_f:
-                    self.text += "f"
+                    self._text += "f"
                 elif e.key == K_g:
-                    self.text += "g"
+                    self._text += "g"
                 elif e.key == K_h:
-                    self.text += "h"
+                    self._text += "h"
                 elif e.key == K_i:
-                    self.text += "i"
+                    self._text += "i"
                 elif e.key == K_j:
-                    self.text += "j"
+                    self._text += "j"
                 elif e.key == K_k:
-                    self.text += "k"
+                    self._text += "k"
                 elif e.key == K_l:
-                    self.text += "l"
+                    self._text += "l"
                 elif e.key == K_m:
-                    self.text += "m"
+                    self._text += "m"
                 elif e.key == K_n:
-                    self.text += "n"
+                    self._text += "n"
                 elif e.key == K_o:
-                    self.text += "o"
+                    self._text += "o"
                 elif e.key == K_p:
-                    self.text += "p"
+                    self._text += "p"
                 elif e.key == K_q:
-                    self.text += "q"
+                    self._text += "q"
                 elif e.key == K_r:
-                    self.text += "r"
+                    self._text += "r"
                 elif e.key == K_s:
-                    self.text += "s"
+                    self._text += "s"
                 elif e.key == K_t:
-                    self.text += "t"
+                    self._text += "t"
                 elif e.key == K_u:
-                    self.text += "u"
+                    self._text += "u"
                 elif e.key == K_v:
-                    self.text += "v"
+                    self._text += "v"
                 elif e.key == K_w:
-                    self.text += "w"
+                    self._text += "w"
                 elif e.key == K_x:
-                    self.text += "x"
+                    self._text += "x"
                 elif e.key == K_y:
-                    self.text += "y"
+                    self._text += "y"
                 elif e.key == K_z:
-                    self.text += "z"
+                    self._text += "z"
                 elif e.key == K_SPACE:
-                    self.text += " "
+                    self._text += " "
                 elif e.key == K_0:
-                    self.text += "0"
+                    self._text += "0"
                 elif e.key == K_1:
-                    self.text += "1"
+                    self._text += "1"
                 elif e.key == K_2:
-                    self.text += "2"
+                    self._text += "2"
                 elif e.key == K_3:
-                    self.text += "3"
+                    self._text += "3"
                 elif e.key == K_4:
-                    self.text += "4"
+                    self._text += "4"
                 elif e.key == K_5:
-                    self.text += "5"
+                    self._text += "5"
                 elif e.key == K_6:
-                    self.text += "6"
+                    self._text += "6"
                 elif e.key == K_7:
-                    self.text += "7"
+                    self._text += "7"
                 elif e.key == K_8:
-                    self.text += "8"
+                    self._text += "8"
                 elif e.key == K_9:
-                    self.text += "9"
+                    self._text += "9"
             if e.key == K_BACKSPACE:
-                self.text = self.text[:-1]
-        self.text = self.text.upper()
+                self._text = self._text[:-1]
+        self._text = self._text.upper()
 
-    # TODO Make this return a Surface for better flexibility
-    def draw(self):
-        """Draws the text entry box to the screen"""
+    def get_surface(self):
+        """Returns text entry surface"""
         surf = pygame.Surface((170, self.font.get_height()))
         surf.fill((255, 255, 255))
-        surf.blit(self.font.render(self.text, True, (0, 0, 0)), (0, 0))
-        surf_rect = surf.get_rect()
-        surf_rect.center = (187, 300)
-        pygame.draw.rect(surf, (65, 65, 65), surf_rect, 2)
-        screen.blit(surf, surf_rect)
+        pygame.draw.rect(surf, (65, 65, 65), surf.get_rect(), 2)
+        surf.blit(self.font.render(self.get_text(), True, (0, 0, 0)), (0, 0))
+        return surf.convert()
 
 
 class SaveScoreState(object):
@@ -931,6 +939,11 @@ class SaveScoreState(object):
         rect_save.center = (150, 150)
         panel.blit(btn_save, rect_save)
 
+        input_ = self.input.get_surface()
+        rect_input = input_.get_rect()
+        rect_input.center = (150, 100)
+        panel.blit(input_, rect_input)
+
         return panel.convert()
 
     def enter(self, prev):
@@ -950,6 +963,9 @@ class SaveScoreState(object):
             btn_save_rect.center = (187, 350)
             btn_save_active = btn_save_rect.collidepoint(pygame.mouse.get_pos())
 
+            # Update text entry
+            self.input.update()
+
             # Draw background
             screen.blit(backgroundObj, (0, 0))
 
@@ -959,16 +975,12 @@ class SaveScoreState(object):
             panel_rect.center = (187, 300)
             screen.blit(panel, panel_rect)
 
-            # Update and draw text entry
-            self.input.update()
-            self.input.draw()
-
             # Check for mouse click and go to appropriate state
             if btn_save_active and pygame.mouse.get_pressed()[0]:
-                if self.input.text == "":
+                if not self.input.get_text():
                     pass  # TODO Play sound and/or animation
                 else:
-                    self.master.save_new_score(self.points, self.input.text)
+                    self.master.save_new_score(self.points, self.input.get_text())
                     self.master.goto(self.master.leaderboardstate)
 
         else:
@@ -1155,8 +1167,6 @@ class PlayingState(object):
             prev: Previous state.
         """
         self.prev = prev
-        # TODO Remove once Escape key uses KEYDOWN event
-        pygame.time.wait(250) # A messy solution to Escape key handling
         self.master.highscore = self.master.get_highscore()
         self.active = True
 
@@ -1169,27 +1179,28 @@ class PlayingState(object):
                 self.master.newroid = self.master.roidrate
 
             # Keybindings
-            keys = pygame.key.get_pressed()
-            if keys[K_ESCAPE]: # TODO Change this to use KEYDOWN event
-                self.master.goto(self.master.pausestate)
+            keys_down = pygame.event.get(KEYDOWN)
+            for e in keys_down:
+                if e.key == K_ESCAPE:
+                    self.master.goto(self.master.pausestate)
 
-            # Debugging keys
-            # TODO Remove these for final release
-            if keys[K_UP]:
-                self.master.roidrate /= 2
-                if self.master.roidrate < 10:
-                    self.master.roidrate = 10
-            if keys[K_DOWN]:
-                self.master.roidrate *= 2
-            if keys[K_RETURN]:
-                self.master.goto(self.master.gameoverstate)
+                # Debugging keys
+                # TODO Remove these for final release
+                elif e.key == K_UP:
+                    self.master.roidrate /= 2
+                    if self.master.roidrate < 10:
+                        self.master.roidrate = 10
+                elif e.key == K_DOWN:
+                    self.master.roidrate *= 2
+                elif e.key == K_RETURN:
+                    self.master.goto(self.master.gameoverstate)
 
             # Player movement
+            keys = pygame.key.get_pressed()
             if keys[K_LEFT] or keys[K_a]:
                 self.master.player.move(-PLAYER_MOVE_SPEED, 0)
-            if keys[K_RIGHT] or keys[K_d]:
+            elif keys[K_RIGHT] or keys[K_d]:
                 self.master.player.move(PLAYER_MOVE_SPEED, 0)
-
             # Gun control
             if keys[K_SPACE] or keys[K_f]:
                 self.master.player.fire()
@@ -1389,17 +1400,18 @@ class Player(object):
         self.draw()
         if self.explode:
             dt = pygame.time.get_ticks() - self.explode
-            pygame.draw.circle(screen, (255, 127, 31), self.rect.center, dt / 2)
-            if dt > 100:
-                self.explode = False
-                self.master.goto(self.master.gameoverstate)
+            if dt < 150:
+                pygame.draw.circle(screen, (255, 127, 31), self.rect.center, dt / 2)
 
     def draw(self):
         """Draws Player sprite animation"""
-        if pygame.time.get_ticks() % 200 < 100:
-            screen.blit(playerSprite1, self.rect.topleft)
-        else:
-            screen.blit(playerSprite2, self.rect.topleft)
+        if not self.explode:
+            if pygame.time.get_ticks() % 200 < 100:
+                screen.blit(playerSprite1, self.rect.topleft)
+            else:
+                screen.blit(playerSprite2, self.rect.topleft)
+
+
 
 
 class Bolt(object):
@@ -1483,6 +1495,7 @@ class Asteroid(object):
             elif type(e) == Asteroid and e != self and not self.explode:
                 if self.rect.colliderect(e.rect):
                     # TODO Fix Choppiness
+                    # TODO(Should self correct once collisions move to PlayingState)
                     self.velx = -self.velx
                     e.velx = -e.velx
                     overlap = (self.rect.centerx - e.rect.centerx) / 2
