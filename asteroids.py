@@ -494,9 +494,10 @@ class GameOverState(object):
                 a.explode = self.timer
             a.vely = 20
             a.draw()
-        if not self.master.player.explode:
-            self.master.player.explode = self.timer
-        self.master.player.draw()
+        if self.prev is not self.master.leaderboardstate:
+            if not self.master.player.explode:
+                self.master.player.explode = self.timer
+            self.master.player.draw()
 
         # Do animation
         if self.master.points > self.master.highscore:
@@ -1166,7 +1167,7 @@ class PlayingState(object):
         self.active = False
         self.prev = None
 
-    def drawlives(self, n):
+    def draw_lives(self, n):
         """Draws 'live' icons in upper right corner
 
         Args:
@@ -1275,7 +1276,7 @@ class PlayingState(object):
             # Render lives
             lives = self.master.player.lives
             if lives > 0:
-                self.drawlives(lives)
+                self.draw_lives(lives)
             else:
                 self.master.goto(self.master.gameoverstate)
 
