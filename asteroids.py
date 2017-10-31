@@ -94,6 +94,26 @@ class OpeningState(object):
         self.timer = False
         self.prev = None
 
+    def draw(self, dt):
+        # Begin drawing animation
+        screen.fill((0, 0, 0))
+        gray = min(max(0, int(255 * dt / 500)), 255)
+        lbl_meteorstorm = FONT_L.render("METEOR STORM", True,
+                                        (gray, gray, gray))
+
+        # Opening fade-in animation
+        if dt < 500:
+            lbl_meteorstorm = pygame.transform.rotozoom(
+                lbl_meteorstorm, 0, dt / 500)
+            rect_meteorstorm = lbl_meteorstorm.get_rect()
+            rect_meteorstorm.center = (187, 300)
+            screen.blit(lbl_meteorstorm, rect_meteorstorm)
+        # Fade-in complete
+        else:
+            rect_meteorstorm = lbl_meteorstorm.get_rect()
+            rect_meteorstorm.center = (187, 300)
+            screen.blit(lbl_meteorstorm, rect_meteorstorm)
+
     def enter(self, prev):
         """Executed on entering the state
 
@@ -111,28 +131,13 @@ class OpeningState(object):
             self.timer = pygame.time.get_ticks()
         dt = float(pygame.time.get_ticks() - self.timer)
 
-        # Begin drawing animation
-        screen.fill((0, 0, 0))
-        gray = min(max(0, int(255 * dt / 500)), 255)
-        lbl_meteorstorm = FONT_L.render("METEOR STORM", True,
-                                        (gray, gray, gray))
-
-        if dt > 500:
-            if dt > 1000:
-                # Finished entering state
-                self.active = True
-                self.timer = False
-            else:
-                rect_meteorstorm = lbl_meteorstorm.get_rect()
-                rect_meteorstorm.center = (187, 300)
-                screen.blit(lbl_meteorstorm, rect_meteorstorm)
+        if dt > 1000:
+            # Finished entering state
+            self.active = True
+            self.timer = False
         else:
-            # Opening Animation
-            lbl_meteorstorm = pygame.transform.rotozoom(
-                lbl_meteorstorm, 0, dt / 500)
-            rect_meteorstorm = lbl_meteorstorm.get_rect()
-            rect_meteorstorm.center = (187, 300)
-            screen.blit(lbl_meteorstorm, rect_meteorstorm)
+            self.draw(dt)
+
 
     def update(self):
         """State update"""
