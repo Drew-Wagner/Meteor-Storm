@@ -159,7 +159,7 @@ class MainMenuState(object):
     
     Attributes:
         master: the attached GameManager instance.
-        name: "MainMenu"
+        name: "MAINMENU"
         active: Flag indicating whether the state is active
         timer: Counts ticks for animations
         prev: The previous state
@@ -376,7 +376,7 @@ class GameOverState(object):
 
     Attributes:
         master: the attached GameManager instance.
-        name: "MainMenu"
+        name: "GAMEOVER"
         active: Flag indicating whether the state is active
         timer: Counts ticks for animations
         prev: The previous state
@@ -584,7 +584,7 @@ class PauseState(object):
 
     Attributes:
         master: the attached GameManager instance.
-        name: "MainMenu"
+        name: "PAUSED"
         active: Flag indicating whether the state is active
         timer: Counts ticks for animations
         prev: The previous state
@@ -886,7 +886,7 @@ class SaveScoreState(object):
 
     Attributes:
         master: the attached GameManager instance.
-        name: "MainMenu"
+        name: "SAVESCORE"
         active: Flag indicating whether the state is active
         timer: Counts ticks for animations
         prev: The previous state
@@ -1001,7 +1001,7 @@ class LeaderBoardState(object):
     Displays the top 11 scores. Back button returns to previous state.
     Attributes:
         master: the attached GameManager instance.
-        name: "MainMenu"
+        name: "LEADERBOARD"
         active: Flag indicating whether the state is active
         timer: Counts ticks for animations
         prev: The previous state
@@ -1135,7 +1135,7 @@ class PlayingState(object):
 
     Attributes:
         master: the attached GameManager instance.
-        name: "MainMenu"
+        name: "PLAYING"
         active: Flag indicating whether the state is active
         timer: Counts ticks for animations (Currently unused)
         prev: The previous state
@@ -1204,6 +1204,34 @@ class PlayingState(object):
             # Gun control
             if keys[K_SPACE] or keys[K_f]:
                 self.master.player.fire()
+
+            # Collision checks:
+            for a in self.master.roids:
+
+                # Player-Asteroid collision check
+                if a.rect.bottom > self.master.player.rect.top:
+                    if a.rect.colliderect(self.master.player.rect) and not a.explode:
+                        self.master.player.lives -= 1
+                        a.explode = pygame.time.get_ticks()
+                        a.vely = 0
+
+                # Bolt-asteroid collision check
+                for b in self.master.bolts:
+                    if a.rect.colliderect(b.rect):
+                        self.master.points += 5
+                        self.master.bolts.remove(b)
+                        a.explode = pygame.time.get_ticks()
+
+                # Asteroid-asteroid collision check
+                for a2 in self.master.roids:
+                    if a is not a2:
+                        if a.rect.colliderect(a2.rect):
+                            a.velx = -a.velx
+                            a2.velx = -a2.velx
+
+                            offset = (a.rect.centerx-a2.rect.centerx)/2 + 1
+                            a.rect.centerx += offset
+                            a2.rect.centerx -= offset
 
             # Draw background
             screen.blit(backgroundObj, (0, 0))
@@ -1368,7 +1396,9 @@ class Player(object):
     def __init__(self, master):
         """Inits the player"""
         self.master = master
-        self.rect = pygame.Rect(150, 513, 75, 75)
+        self.rect = pygame.Rect(0, 0, 75, 35)
+        self.rect.centerx = 187
+        self.rect.centery = 550
         self.lives = 3
         self.can_fire = 0
         self.explode = False
@@ -1406,11 +1436,11 @@ class Player(object):
     def draw(self):
         """Draws Player sprite animation"""
         if not self.explode:
+            r = (self.rect.left, self.rect.top-25)
             if pygame.time.get_ticks() % 200 < 100:
-                screen.blit(playerSprite1, self.rect.topleft)
+                screen.blit(playerSprite1, r)
             else:
-                screen.blit(playerSprite2, self.rect.topleft)
-
+                screen.blit(playerSprite2, r)
 
 
 
@@ -1485,27 +1515,6 @@ class Asteroid(object):
         if self.rect.top > HEIGHT:
             self.master.roids.remove(self)
             self.master.goto(self.master.gameoverstate)
-
-        for e in self.master.bolts + self.master.roids + [self.master.player]:
-            if type(e) == Bolt:
-                if self.rect.colliderect(e.rect) and not self.explode:
-                    self.explode = pygame.time.get_ticks()
-                    self.master.bolts.remove(e)
-                    self.master.points += 5
-            elif type(e) == Asteroid and e != self and not self.explode:
-                if self.rect.colliderect(e.rect):
-                    # TODO Fix Choppiness
-                    # TODO(Should self correct once collisions move to PlayingState)
-                    self.velx = -self.velx
-                    e.velx = -e.velx
-                    overlap = (self.rect.centerx - e.rect.centerx) / 2
-                    e.rect.centerx -= overlap
-                    self.rect.centerx += overlap
-            elif type(e) == Player:
-                if self.rect.colliderect(e.rect) and not self.explode:
-                    self.explode = pygame.time.get_ticks()
-                    self.vely = -self.vely
-                    self.master.player.lives -= 1
 
         self.draw()
 
