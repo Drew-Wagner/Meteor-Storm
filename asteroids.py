@@ -11,13 +11,14 @@ FPS = 30
 PLAYER_MOVE_SPEED = 15
 
 # Create lists to store sprites
-ASTEROID_SPRITES = [] 
+ASTEROID_SPRITES = []
 
 # Initialize Pygame and fpsClock
 pygame.init()
-screen = pygame.display.set_mode( (WIDTH, HEIGHT) )
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Meteor Storm - by Drew Wagner")
 fpsClock = pygame.time.Clock()
+
 
 # Loads and transforms asteroid sprites
 def load_asteroids(num):
@@ -30,9 +31,10 @@ def load_asteroids(num):
     """
     for i in range(num):
         # TODO(Drew) Stop if images don't exist
-        s = pygame.image.load('images/asteroids/asteroid'+str(i+1)+'.png')
+        s = pygame.image.load('images/asteroids/asteroid' + str(i + 1) + '.png')
         s = pygame.transform.scale(s, (25, 25))
         ASTEROID_SPRITES.append(s)
+
 
 # Load fonts
 FONT_S = pygame.font.SysFont("Impact", 20)
@@ -63,6 +65,7 @@ heartSprite = pygame.transform.scale(heartSprite, (28, 28))
 # Load and transform asteroid sprites
 load_asteroids(4)
 
+
 class OpeningState(object):
     """Handles Opening Animation
 
@@ -76,6 +79,7 @@ class OpeningState(object):
         prev: The previous state
         
     """
+
     def __init__(self, master):
         """Inits OpeningState"""
         self.master = master
@@ -102,10 +106,10 @@ class OpeningState(object):
         dt = float(pygame.time.get_ticks() - self.timer)
 
         # Begin drawing animation
-        screen.fill((0,0,0))
-        gray = min(max(0,int(255*dt/500)), 255)
+        screen.fill((0, 0, 0))
+        gray = min(max(0, int(255 * dt / 500)), 255)
         lbl_meteorstorm = FONT_L.render("METEOR STORM", True,
-                                         (gray,gray,gray))
+                                        (gray, gray, gray))
 
         if dt > 500:
             if dt > 1000:
@@ -119,7 +123,7 @@ class OpeningState(object):
         else:
             # Opening Animation
             lbl_meteorstorm = pygame.transform.rotozoom(
-                lbl_meteorstorm, 0, dt/500)
+                lbl_meteorstorm, 0, dt / 500)
             rect_meteorstorm = lbl_meteorstorm.get_rect()
             rect_meteorstorm.center = (187, 300)
             screen.blit(lbl_meteorstorm, rect_meteorstorm)
@@ -128,7 +132,7 @@ class OpeningState(object):
         """State update"""
         if self.active:
             self.master.goto(self.master.mainmenustate)
-        else: # State entry is not complete
+        else:  # State entry is not complete
             self.enter(self.prev)
 
     def leave(self, state):
@@ -139,6 +143,7 @@ class OpeningState(object):
         """
         self.active = False
         self.master._enter(state)
+
 
 class MainMenuState(object):
     """Handles Main menu
@@ -157,6 +162,7 @@ class MainMenuState(object):
     _INST = (187, 310)
     _LEAD = (187, 370)
     _QUIT = (187, 430)
+
     def __init__(self, master):
         """Inits MainMenuState"""
         self.master = master
@@ -168,8 +174,8 @@ class MainMenuState(object):
     # TODO(Drew) Implement full overlay
     def black(self):
         """Returns Overlay from opening scene for fade-out"""
-        black = pygame.Surface((WIDTH,HEIGHT))
-        black.fill((0,0,0))
+        black = pygame.Surface((WIDTH, HEIGHT))
+        black.fill((0, 0, 0))
 
         return black.convert()
 
@@ -183,16 +189,16 @@ class MainMenuState(object):
             btn_q: Flag for quit button mouseover
         """
         # Draw background
-        screen.blit(backgroundObj, (0,0))
+        screen.blit(backgroundObj, (0, 0))
 
         # Draw Title
         lbl_title_line_1 = FONT_XL.render("METEOR", True,
-                                      (255,255,255))
+                                          (255, 255, 255))
         rect_title_line_1 = lbl_title_line_1.get_rect()
         rect_title_line_1.center = (187, 90)
         screen.blit(lbl_title_line_1, rect_title_line_1)
         lbl_title_line_2 = FONT_XL.render("STORM", True,
-                                      (255,255,255))
+                                          (255, 255, 255))
         rect_title_line_2 = lbl_title_line_2.get_rect()
         rect_title_line_2.center = (187, 150)
         screen.blit(lbl_title_line_2, rect_title_line_2)
@@ -200,15 +206,15 @@ class MainMenuState(object):
         # Draw Play button
         btn_play = pygame.Surface((300, 50))
         if btn_p:
-            btn_play.fill((0,0,0))
-            pygame.draw.rect(btn_play, (65, 65, 65), (6,6, 288, 38), 2)
+            btn_play.fill((0, 0, 0))
+            pygame.draw.rect(btn_play, (65, 65, 65), (6, 6, 288, 38), 2)
             lbl_play = FONT_M.render("PLAY", True,
-                                       (255,255,255))
+                                     (255, 255, 255))
         else:
             btn_play.fill((255, 255, 255))
-            pygame.draw.rect(btn_play, (190, 190, 190), (6,6, 288, 38), 2)
+            pygame.draw.rect(btn_play, (190, 190, 190), (6, 6, 288, 38), 2)
             lbl_play = FONT_M.render("PLAY", True,
-                                       (0,0,0))
+                                     (0, 0, 0))
         rect_lbl_play = lbl_play.get_rect()
         rect_lbl_play.center = btn_play.get_rect().center
         btn_play.blit(lbl_play, rect_lbl_play)
@@ -221,15 +227,15 @@ class MainMenuState(object):
         btn_instructions = pygame.Surface((300, 50))
 
         if btn_ins:
-            btn_instructions.fill((0,0,0))
-            pygame.draw.rect(btn_instructions, (65, 65, 65), (6,6, 288, 38), 2)
+            btn_instructions.fill((0, 0, 0))
+            pygame.draw.rect(btn_instructions, (65, 65, 65), (6, 6, 288, 38), 2)
             lbl_instructions = FONT_M.render("INSTRUCTIONS", True,
-                                       (255,255,255))
+                                             (255, 255, 255))
         else:
             btn_instructions.fill((255, 255, 255))
-            pygame.draw.rect(btn_instructions, (190, 190, 190), (6,6, 288, 38), 2)
+            pygame.draw.rect(btn_instructions, (190, 190, 190), (6, 6, 288, 38), 2)
             lbl_instructions = FONT_M.render("INSTRUCTIONS", True,
-                                       (0,0,0))
+                                             (0, 0, 0))
         rect_lbl_inst = lbl_instructions.get_rect()
         rect_lbl_inst.center = btn_instructions.get_rect().center
         btn_instructions.blit(lbl_instructions, rect_lbl_inst)
@@ -242,15 +248,15 @@ class MainMenuState(object):
         btn_lead = pygame.Surface((300, 50))
         msgSurfObj = None
         if btn_l:
-            btn_lead.fill((0,0,0))
-            pygame.draw.rect(btn_lead, (65, 65, 65), (6,6, 288, 38), 2)
+            btn_lead.fill((0, 0, 0))
+            pygame.draw.rect(btn_lead, (65, 65, 65), (6, 6, 288, 38), 2)
             lbl_lead = FONT_M.render("LEADER BOARD", True,
-                                       (255,255,255))
+                                     (255, 255, 255))
         else:
             btn_lead.fill((255, 255, 255))
-            pygame.draw.rect(btn_lead, (190, 190, 190), (6,6, 288, 38), 2)
+            pygame.draw.rect(btn_lead, (190, 190, 190), (6, 6, 288, 38), 2)
             lbl_lead = FONT_M.render("LEADER BOARD", True,
-                                       (0,0,0))
+                                     (0, 0, 0))
         rect_lbl_lead = lbl_lead.get_rect()
         rect_lbl_lead.center = btn_lead.get_rect().center
         btn_lead.blit(lbl_lead, rect_lbl_lead)
@@ -262,15 +268,15 @@ class MainMenuState(object):
         # Draw QUIT button
         btn_quit = pygame.Surface((300, 50))
         if btn_q:
-            btn_quit.fill((0,0,0))
-            pygame.draw.rect(btn_quit, (65, 65, 65), (6,6, 288, 38), 2)
+            btn_quit.fill((0, 0, 0))
+            pygame.draw.rect(btn_quit, (65, 65, 65), (6, 6, 288, 38), 2)
             lbl_quit = FONT_M.render("QUIT", True,
-                                       (255,255,255))
+                                     (255, 255, 255))
         else:
             btn_quit.fill((255, 255, 255))
-            pygame.draw.rect(btn_quit, (190, 190, 190), (6,6, 288, 38), 2)
+            pygame.draw.rect(btn_quit, (190, 190, 190), (6, 6, 288, 38), 2)
             lbl_quit = FONT_M.render("QUIT", True,
-                                       (0,0,0))
+                                     (0, 0, 0))
         rect_lbl_quit = lbl_quit.get_rect()
         rect_lbl_quit.center = btn_quit.get_rect().center
         btn_quit.blit(lbl_quit, rect_lbl_quit)
@@ -280,7 +286,7 @@ class MainMenuState(object):
         screen.blit(btn_quit, rect_quit)
 
         # Draw Signature
-        lbl_sig = FONT_S.render("Created by Drew Wagner", True, (255,255,255))
+        lbl_sig = FONT_S.render("Created by Drew Wagner", True, (255, 255, 255))
         rect_sig = lbl_sig.get_rect()
         rect_sig.bottom = 600
         rect_sig.centerx = 187
@@ -302,7 +308,7 @@ class MainMenuState(object):
         black = self.black()
         black.set_alpha(int(max(255 - dt, 0)))
 
-        screen.blit(black, (0,0))
+        screen.blit(black, (0, 0))
 
         # Animation is finished
         if dt > 1000:
@@ -313,19 +319,19 @@ class MainMenuState(object):
         """State update"""
         if self.active:
             # Set Rects for buttons and test for mouseover
-            btn_play_rect = pygame.Rect((0,0),(300,50))
+            btn_play_rect = pygame.Rect((0, 0), (300, 50))
             btn_play_rect.center = self._PLAY
             btn_play_active = btn_play_rect.collidepoint(pygame.mouse.get_pos())
 
-            btn_inst_rect = pygame.Rect((0,0),(300,50))
+            btn_inst_rect = pygame.Rect((0, 0), (300, 50))
             btn_inst_rect.center = self._INST
             btn_inst_active = btn_inst_rect.collidepoint(pygame.mouse.get_pos())
 
-            btn_lead_rect = pygame.Rect((0,0),(300,50))
+            btn_lead_rect = pygame.Rect((0, 0), (300, 50))
             btn_lead_rect.center = self._LEAD
             btn_lead_active = btn_lead_rect.collidepoint(pygame.mouse.get_pos())
-            
-            btn_quit_rect = pygame.Rect((0,0),(300,50))
+
+            btn_quit_rect = pygame.Rect((0, 0), (300, 50))
             btn_quit_rect.center = self._QUIT
             btn_quit_active = btn_quit_rect.collidepoint(pygame.mouse.get_pos())
 
@@ -342,10 +348,10 @@ class MainMenuState(object):
                     # TODO goto exit state
                     pygame.quit()
                     sys.exit()
-            
+
             self.draw(btn_play_active, btn_inst_active, btn_lead_active, btn_quit_active)
         else:
-            self.enter(self.prev) # State entry is not complete
+            self.enter(self.prev)  # State entry is not complete
 
     def leave(self, state):
         """Exit state
@@ -355,6 +361,7 @@ class MainMenuState(object):
         """
         self.active = False
         self.master._enter(state)
+
 
 class GameOverState(object):
     """ Handles game over
@@ -383,7 +390,7 @@ class GameOverState(object):
 
         Args:
             btn_res: Flag for resume button mouseover.
-            btn_mm: Flag for save button mouseover.
+            btn_ss: Flag for save button mouseover.
             new_high: Flag for if score is a new highscore.
         """
         # Set the y coordinates for the title and highscore labels
@@ -395,12 +402,12 @@ class GameOverState(object):
             _highscorey = 79
 
         # Create panel surface
-        panel = pygame.Surface((300,200))
-        panel.fill((127,127,127))
-        pygame.draw.rect(panel, (65,65,65), panel.get_rect(), 5)
-        
+        panel = pygame.Surface((300, 200))
+        panel.fill((127, 127, 127))
+        pygame.draw.rect(panel, (65, 65, 65), panel.get_rect(), 5)
+
         lbl_gameover = FONT_M.render("GAME OVER", True,
-                                   (255,255,255))
+                                     (255, 255, 255))
         rect_gameover = lbl_gameover.get_rect()
         rect_gameover.center = (150, _gameovery)
         panel.blit(lbl_gameover, rect_gameover)
@@ -408,12 +415,12 @@ class GameOverState(object):
         # Display score and/or (new) highscore
         if new_high:
             lbl_highscore = FONT_S.render("NEW HIGHSCORE: " + str(self.master.points), True,
-                                       (255,255,255))
+                                          (255, 255, 255))
         else:
             lbl_highscore = FONT_S.render("HIGHSCORE: " + str(self.master.highscore), True,
-                                       (255,255,255))
+                                          (255, 255, 255))
             lbl_score = FONT_S.render("SCORE: " + str(self.master.points), True,
-                                       (255,255,255))
+                                      (255, 255, 255))
             rect_score = lbl_score.get_rect()
             rect_score.center = (150, 59)
             panel.blit(lbl_score, rect_score)
@@ -424,15 +431,15 @@ class GameOverState(object):
         # Draw Restart button
         btn_restart = pygame.Surface((115, 30))
         if btn_res:
-            btn_restart.fill((0,0,0))
-            pygame.draw.rect(btn_restart, (65, 65, 65), (3,3, 109, 24), 1)
+            btn_restart.fill((0, 0, 0))
+            pygame.draw.rect(btn_restart, (65, 65, 65), (3, 3, 109, 24), 1)
             lbl_restart = FONT_S.render("RESTART", True,
-                                       (255,255,255))
+                                        (255, 255, 255))
         else:
             btn_restart.fill((255, 255, 255))
-            pygame.draw.rect(btn_restart, (190, 190, 190), (3,3, 109, 24), 1)
+            pygame.draw.rect(btn_restart, (190, 190, 190), (3, 3, 109, 24), 1)
             lbl_restart = FONT_S.render("RESTART", True,
-                                       (0,0,0))
+                                        (0, 0, 0))
 
         rect_lbl_restart = lbl_restart.get_rect()
         rect_lbl_restart.center = btn_restart.get_rect().center
@@ -445,15 +452,15 @@ class GameOverState(object):
         # Draw Save button
         btn_save = pygame.Surface((115, 30))
         if btn_ss:
-            btn_save.fill((0,0,0))
-            pygame.draw.rect(btn_save, (65, 65, 65), (3,3, 109, 24), 1)
+            btn_save.fill((0, 0, 0))
+            pygame.draw.rect(btn_save, (65, 65, 65), (3, 3, 109, 24), 1)
             lbl_save = FONT_S.render("SAVE SCORE", True,
-                                       (255,255,255))
+                                     (255, 255, 255))
         else:
             btn_save.fill((255, 255, 255))
-            pygame.draw.rect(btn_save, (190, 190, 190), (3,3, 109, 24), 1)
+            pygame.draw.rect(btn_save, (190, 190, 190), (3, 3, 109, 24), 1)
             lbl_save = FONT_S.render("SAVE SCORE", True,
-                                       (0,0,0))
+                                     (0, 0, 0))
 
         rect_lbl_save = lbl_save.get_rect()
         rect_lbl_save.center = btn_save.get_rect().center
@@ -473,16 +480,16 @@ class GameOverState(object):
             prev: Previous state
         """
         self.prev = prev
-        if self.timer == False:
+        if not self.timer:
             self.timer = pygame.time.get_ticks()
         dt = float(pygame.time.get_ticks() - self.timer)
 
-        screen.blit(backgroundObj, (0,0))
+        screen.blit(backgroundObj, (0, 0))
 
         # Explode remaining asteroids and player
         # TODO Explode player
         for a in self.master.roids:
-            if a.explode == False:
+            if not a.explode:
                 a.explode = self.timer
             a.vely = 20
             a.draw()
@@ -495,31 +502,31 @@ class GameOverState(object):
         panel = self.get_panel(new_high=new_high)
 
         if dt < 500:
-            panel = pygame.transform.rotozoom(panel, 0, dt/500)
+            panel = pygame.transform.rotozoom(panel, 0, dt / 500)
             panel_rect = panel.get_rect()
-            panel_rect.center = (187, 100+ 200*dt/500)
+            panel_rect.center = (187, 100 + 200 * dt / 500)
             screen.blit(panel, panel_rect)
         # Finished entering
         else:
             panel_rect = panel.get_rect()
             panel_rect.center = (187, 300)
             screen.blit(panel, panel_rect)
-            
+
             self.active = True
-            self.timer = False 
+            self.timer = False
 
     def update(self):
         """State update"""
         if self.active:
             # Draw background
-            screen.blit(backgroundObj, (0,0))
+            screen.blit(backgroundObj, (0, 0))
 
             # Set Rects for buttons and check for mouseover
-            btn_res_rect = pygame.Rect((0,0),(115,30))
+            btn_res_rect = pygame.Rect((0, 0), (115, 30))
             btn_res_rect.center = (187, 310)
             btn_res_active = btn_res_rect.collidepoint(pygame.mouse.get_pos())
 
-            btn_mm_rect = pygame.Rect((0,0),(115,30))
+            btn_mm_rect = pygame.Rect((0, 0), (115, 30))
             btn_mm_rect.center = (187, 345)
             btn_mm_active = btn_mm_rect.collidepoint(pygame.mouse.get_pos())
 
@@ -543,10 +550,10 @@ class GameOverState(object):
 
                 elif btn_mm_active:
                     self.master.goto(self.master.savescorestate)
-                
+
         else:
-            self.enter(self.prev) # State entry not complete
-            
+            self.enter(self.prev)  # State entry not complete
+
     def leave(self, state):
         """Handles state exit.
 
@@ -563,6 +570,7 @@ class GameOverState(object):
         self.active = False
         self.master._enter(state)
 
+
 class PauseState(object):
     """Handles pausing
 
@@ -574,6 +582,7 @@ class PauseState(object):
         prev: The previous state
         leaving: Flag indicating whether the state is stopping
     """
+
     def __init__(self, master):
         """Inits PauseState"""
         self.master = master
@@ -593,13 +602,13 @@ class PauseState(object):
         """
 
         # Create panel surface
-        panel = pygame.Surface((300,200))
-        panel.fill((127,127,127))
-        pygame.draw.rect(panel, (65,65,65), panel.get_rect(), 5)
+        panel = pygame.Surface((300, 200))
+        panel.fill((127, 127, 127))
+        pygame.draw.rect(panel, (65, 65, 65), panel.get_rect(), 5)
 
         # Draw title
         lbl_paused = FONT_M.render("PAUSED", True,
-                                   (255,255,255))
+                                   (255, 255, 255))
         rect_paused = lbl_paused.get_rect()
         rect_paused.center = (150, 50)
         panel.blit(lbl_paused, rect_paused)
@@ -607,18 +616,18 @@ class PauseState(object):
         # Draw resume button
         btn_resume = pygame.Surface((115, 30))
         if btn_res:
-            btn_resume.fill((0,0,0))
-            pygame.draw.rect(btn_resume, (65, 65, 65), (3,3, 109, 24), 1)
+            btn_resume.fill((0, 0, 0))
+            pygame.draw.rect(btn_resume, (65, 65, 65), (3, 3, 109, 24), 1)
             lbl_resume = FONT_S.render("RESUME", True,
-                                       (255,255,255))
+                                       (255, 255, 255))
         else:
             btn_resume.fill((255, 255, 255))
-            pygame.draw.rect(btn_resume, (190, 190, 190), (3,3, 109, 24), 1)
+            pygame.draw.rect(btn_resume, (190, 190, 190), (3, 3, 109, 24), 1)
             lbl_resume = FONT_S.render("RESUME", True,
-                                       (0,0,0))
+                                       (0, 0, 0))
 
         rect_lbl_resume = lbl_resume.get_rect()
-        rect_lbl_resume.center = lbl_resume.get_rect().center
+        rect_lbl_resume.center = btn_resume.get_rect().center
         btn_resume.blit(lbl_resume, rect_lbl_resume)
 
         rect_resume = btn_resume.get_rect()
@@ -628,25 +637,25 @@ class PauseState(object):
         # Draw mainmenu button
         btn_mainmenu = pygame.Surface((115, 30))
         if btn_mm:
-            btn_mainmenu.fill((0,0,0))
-            pygame.draw.rect(btn_mainmenu, (65, 65, 65), (3,3, 109, 24), 1)
+            btn_mainmenu.fill((0, 0, 0))
+            pygame.draw.rect(btn_mainmenu, (65, 65, 65), (3, 3, 109, 24), 1)
             lbl_mainmenu = FONT_S.render("MAIN MENU", True,
-                                       (255,255,255))
+                                         (255, 255, 255))
         else:
             btn_mainmenu.fill((255, 255, 255))
-            pygame.draw.rect(btn_mainmenu, (190, 190, 190), (3,3, 109, 24), 1)
+            pygame.draw.rect(btn_mainmenu, (190, 190, 190), (3, 3, 109, 24), 1)
             lbl_mainmenu = FONT_S.render("MAIN MENU", True,
-                                       (0,0,0))
+                                         (0, 0, 0))
 
         rect_lbl_mainmenu = lbl_mainmenu.get_rect()
         rect_lbl_mainmenu.center = btn_mainmenu.get_rect().center
-        btn_mainmenu.blit(lbl_mainmenu, rect_label_mainmenu)
+        btn_mainmenu.blit(lbl_mainmenu, rect_lbl_mainmenu)
 
         rect_mainmenu = btn_mainmenu.get_rect()
         rect_mainmenu.center = (150, 145)
         panel.blit(btn_mainmenu, rect_mainmenu)
 
-        return panel.convert()    
+        return panel.convert()
 
     def enter(self, prev):
         """Handles state entry
@@ -655,17 +664,17 @@ class PauseState(object):
             prev: Previous state
         """
         self.prev = prev
-        if self.timer == False:
+        if not self.timer:
             self.timer = pygame.time.get_ticks()
         dt = float(pygame.time.get_ticks() - self.timer)
 
         # Draw background
-        screen.blit(backgroundObj, (0,0))
+        screen.blit(backgroundObj, (0, 0))
 
         # Do animation
         panel = self.get_panel()
         if dt < 250:
-            panel = pygame.transform.rotozoom(panel, 0, dt/250)
+            panel = pygame.transform.rotozoom(panel, 0, dt / 250)
             panel_rect = panel.get_rect()
             panel_rect.center = (187, 300)
             screen.blit(panel, panel_rect)
@@ -674,7 +683,7 @@ class PauseState(object):
             panel_rect = panel.get_rect()
             panel_rect.center = (187, 300)
             screen.blit(panel, panel_rect)
-            
+
             self.active = True
             self.timer = False
 
@@ -682,14 +691,14 @@ class PauseState(object):
         """Handles state update"""
         if self.active and not self.leaving:
             # Draw background
-            screen.blit(backgroundObj, (0,0))
+            screen.blit(backgroundObj, (0, 0))
 
             # Set Rects for buttons and check for mouseover
-            btn_res_rect = pygame.Rect((0,0),(115,30))
+            btn_res_rect = pygame.Rect((0, 0), (115, 30))
             btn_res_rect.center = (187, 310)
             btn_res_active = btn_res_rect.collidepoint(pygame.mouse.get_pos())
 
-            btn_mm_rect = pygame.Rect((0,0),(115,30))
+            btn_mm_rect = pygame.Rect((0, 0), (115, 30))
             btn_mm_rect.center = (187, 345)
             btn_mm_active = btn_mm_rect.collidepoint(pygame.mouse.get_pos())
 
@@ -729,17 +738,17 @@ class PauseState(object):
             self.leaving = True
             self._nextstate = state
         else:
-            if self.timer == False:
+            if not self.timer:
                 self.timer = pygame.time.get_ticks()
             dt = float(pygame.time.get_ticks() - self.timer)
 
             # Draw background
-            screen.blit(backgroundObj, (0,0))
+            screen.blit(backgroundObj, (0, 0))
 
             # Do animation
             panel = self.get_panel()
             if dt < 250:
-                panel = pygame.transform.rotozoom(panel, 0, (250-dt)/250)
+                panel = pygame.transform.rotozoom(panel, 0, (250 - dt) / 250)
                 panel_rect = panel.get_rect()
                 panel_rect.center = (187, 300)
                 screen.blit(panel, panel_rect)
@@ -751,6 +760,7 @@ class PauseState(object):
                 self.timer = False
                 self.master._enter(state)
 
+
 class Input(object):
     """Rudimentary text entry object for pygame
 
@@ -761,6 +771,7 @@ class Input(object):
             Defaut - FONT_MONO_M
         text: text contained by the object
     """
+
     def __init__(self, maxwidth=10, font=FONT_MONO_M):
         self.maxwidth = maxwidth
         self.font = font
@@ -770,99 +781,110 @@ class Input(object):
     def update(self):
         """Method for listening for key input"""
         keys_pressed = pygame.event.get(KEYDOWN)
-        for event in keys_pressed:
+        for e in keys_pressed:
             if len(self.text) < self.maxwidth:
-                if event.key == K_a:
+                if e.key == K_a:
                     self.text += "a"
-                elif event.key == K_b:
+                elif e.key == K_b:
                     self.text += "b"
-                elif event.key == K_c:
+                elif e.key == K_c:
                     self.text += "c"
-                elif event.key == K_d:
+                elif e.key == K_d:
                     self.text += "d"
-                elif event.key == K_e:
+                elif e.key == K_e:
                     self.text += "e"
-                elif event.key == K_f:
+                elif e.key == K_f:
                     self.text += "f"
-                elif event.key == K_g:
+                elif e.key == K_g:
                     self.text += "g"
-                elif event.key == K_h:
+                elif e.key == K_h:
                     self.text += "h"
-                elif event.key == K_i:
+                elif e.key == K_i:
                     self.text += "i"
-                elif event.key == K_j:
+                elif e.key == K_j:
                     self.text += "j"
-                elif event.key == K_k:
+                elif e.key == K_k:
                     self.text += "k"
-                elif event.key == K_l:
+                elif e.key == K_l:
                     self.text += "l"
-                elif event.key == K_m:
+                elif e.key == K_m:
                     self.text += "m"
-                elif event.key == K_n:
+                elif e.key == K_n:
                     self.text += "n"
-                elif event.key == K_o:
+                elif e.key == K_o:
                     self.text += "o"
-                elif event.key == K_p:
+                elif e.key == K_p:
                     self.text += "p"
-                elif event.key == K_q:
+                elif e.key == K_q:
                     self.text += "q"
-                elif event.key == K_r:
+                elif e.key == K_r:
                     self.text += "r"
-                elif event.key == K_s:
+                elif e.key == K_s:
                     self.text += "s"
-                elif event.key == K_t:
+                elif e.key == K_t:
                     self.text += "t"
-                elif event.key == K_u:
+                elif e.key == K_u:
                     self.text += "u"
-                elif event.key == K_v:
+                elif e.key == K_v:
                     self.text += "v"
-                elif event.key == K_w:
+                elif e.key == K_w:
                     self.text += "w"
-                elif event.key == K_x:
+                elif e.key == K_x:
                     self.text += "x"
-                elif event.key == K_y:
+                elif e.key == K_y:
                     self.text += "y"
-                elif event.key == K_z:
+                elif e.key == K_z:
                     self.text += "z"
-                elif event.key == K_SPACE:
+                elif e.key == K_SPACE:
                     self.text += " "
-                elif event.key == K_0:
+                elif e.key == K_0:
                     self.text += "0"
-                elif event.key == K_1:
+                elif e.key == K_1:
                     self.text += "1"
-                elif event.key == K_2:
+                elif e.key == K_2:
                     self.text += "2"
-                elif event.key == K_3:
+                elif e.key == K_3:
                     self.text += "3"
-                elif event.key == K_4:
+                elif e.key == K_4:
                     self.text += "4"
-                elif event.key == K_5:
+                elif e.key == K_5:
                     self.text += "5"
-                elif event.key == K_6:
+                elif e.key == K_6:
                     self.text += "6"
-                elif event.key == K_7:
+                elif e.key == K_7:
                     self.text += "7"
-                elif event.key == K_8:
+                elif e.key == K_8:
                     self.text += "8"
-                elif event.key == K_9:
+                elif e.key == K_9:
                     self.text += "9"
-            if event.key == K_BACKSPACE:
+            if e.key == K_BACKSPACE:
                 self.text = self.text[:-1]
         self.text = self.text.upper()
 
     # TODO Make this return a Surface for better flexibility
     def draw(self):
         """Draws the text entry box to the screen"""
-        surf = pygame.Surface((170,self.font.get_height()))
-        surf.fill((255,255,255))
-        surf.blit(self.font.render(self.text, True, (0,0,0)), (0,0))
+        surf = pygame.Surface((170, self.font.get_height()))
+        surf.fill((255, 255, 255))
+        surf.blit(self.font.render(self.text, True, (0, 0, 0)), (0, 0))
         surf_rect = surf.get_rect()
         surf_rect.center = (187, 300)
-        pygame.draw.rect(surf, (65,65,65), surf_rect, 2)
+        pygame.draw.rect(surf, (65, 65, 65), surf_rect, 2)
         screen.blit(surf, surf_rect)
 
+
 class SaveScoreState(object):
+    """Handles save score interface
+
+    Attributes:
+        master: the attached GameManager instance.
+        name: "MainMenu"
+        active: Flag indicating whether the state is active
+        timer: Counts ticks for animations
+        prev: The previous state
+    """
     def __init__(self, master):
+        """Inits SaveScoreState"""
         self.master = master
         self.prev = None
         self.name = "SAVESCORE"
@@ -870,111 +892,156 @@ class SaveScoreState(object):
         self.active = False
         self.input = Input()
 
-    def get_panel(self, btn_s = False):
+    def get_panel(self, btn_s=False):
+        """Returns panel surface
+
+        Args:
+            btn_s: Flag for save button mouseover.
+        """
+        # Create and draw panel surface
         panel = pygame.Surface((300, 200))
-        panel.fill((127,127,127))
-        pygame.draw.rect(panel, (65,65,65), panel.get_rect(), 5)
+        panel.fill((127, 127, 127))
+        pygame.draw.rect(panel, (65, 65, 65), panel.get_rect(), 5)
 
-        msgSurfObj = FONT_M.render("SAVE SCORE", True,
-                                   (255,255,255))
-        msgRectObj = msgSurfObj.get_rect()
-        msgRectObj.center = (150, 30)
-        panel.blit(msgSurfObj, msgRectObj)
+        # Draw title
+        lbl_save = FONT_M.render("SAVE SCORE", True,
+                                (255, 255, 255))
+        rect_lbl_save = lbl_save.get_rect()
+        rect_lbl_save.center = (150, 30)
+        panel.blit(lbl_save, rect_lbl_save)
 
+        # Draw save button
         btn_save = pygame.Surface((115, 30))
-        msgSurfObj = None
         if btn_s:
-            btn_save.fill((0,0,0))
-            pygame.draw.rect(btn_save, (65, 65, 65), (3,3, 109, 24), 1)
-            msgSurfObj = FONT_S.render("SAVE", True,
-                                       (255,255,255))
+            btn_save.fill((0, 0, 0))
+            pygame.draw.rect(btn_save, (65, 65, 65), (3, 3, 109, 24), 1)
+            lbl_save = FONT_S.render("SAVE", True,
+                                       (255, 255, 255))
         else:
             btn_save.fill((255, 255, 255))
-            pygame.draw.rect(btn_save, (190, 190, 190), (3,3, 109, 24), 1)
-            msgSurfObj = FONT_S.render("SAVE", True,
-                                       (0,0,0))
+            pygame.draw.rect(btn_save, (190, 190, 190), (3, 3, 109, 24), 1)
+            lbl_save = FONT_S.render("SAVE", True,
+                                       (0, 0, 0))
 
-        msgRectObj = msgSurfObj.get_rect()
-        msgRectObj.center = btn_save.get_rect().center
-        btn_save.blit(msgSurfObj, msgRectObj)
+        rect_lbl_save = lbl_save.get_rect()
+        rect_lbl_save.center = btn_save.get_rect().center
+        btn_save.blit(lbl_save, rect_lbl_save)
 
-        btn_save_rect = btn_save.get_rect()
-        btn_save_rect.center = (150, 150)
-        panel.blit(btn_save, btn_save_rect)
+        rect_save = btn_save.get_rect()
+        rect_save.center = (150, 150)
+        panel.blit(btn_save, rect_save)
 
         return panel.convert()
-        
+
     def enter(self, prev):
+        """Handles state entry
+
+        Args:
+            prev: Previous state.
+        """
         self.prev = prev
         self.active = True
 
     def update(self):
+        """State update"""
         if self.active:
-            btn_save_rect = pygame.Rect((0,0),(115,30))
+            # Set Rect for save button and check for mouseover
+            btn_save_rect = pygame.Rect((0, 0), (115, 30))
             btn_save_rect.center = (187, 350)
             btn_save_active = btn_save_rect.collidepoint(pygame.mouse.get_pos())
-            
+
+            # Draw background
+            screen.blit(backgroundObj, (0, 0))
+
+            # Get and draw panel
             panel = self.get_panel(btn_save_active)
-            
             panel_rect = panel.get_rect()
             panel_rect.center = (187, 300)
-            screen.blit(backgroundObj, (0,0))
             screen.blit(panel, panel_rect)
 
+            # Update and draw text entry
             self.input.update()
             self.input.draw()
 
+            # Check for mouse click and go to appropriate state
             if btn_save_active and pygame.mouse.get_pressed()[0]:
                 if self.input.text == "":
-                    pass #Play sound
+                    pass  # TODO Play sound and/or animation
                 else:
-                    self.master.savenewscore(self.points, self.input.text)
+                    self.master.save_new_score(self.points, self.input.text)
                     self.master.goto(self.master.leaderboardstate)
-            
+
         else:
             self.enter(self.prev)
 
     def leave(self, state):
+        """Handles state exit
+        Args:
+            state: Next state.
+        """
         self.active = False
         self.master._enter(state)
-        
+
+
 class LeaderBoardState(object):
+    """Handles the leaderboard
+
+    Displays the top 11 scores. Back button returns to previous state.
+    Attributes:
+        master: the attached GameManager instance.
+        name: "MainMenu"
+        active: Flag indicating whether the state is active
+        timer: Counts ticks for animations
+        prev: The previous state
+    """
     def __init__(self, master):
+        """Inits LeaderBoardState"""
         self.master = master
-        self.prev = None
         self.name = "LEADERBOARD"
         self.active = False
+        self.timer = False
+        self.prev = None
 
     def get_panel(self, btn_b=False):
-        panel = pygame.Surface((300, 500))
-        panel.fill((127,127,127))
-        pygame.draw.rect(panel, (65,65,65), panel.get_rect(), 3)
+        """Returns panel surface
 
-        msg = FONT_L.render("LEADER BOARD", True, (255,255,255))
+        Args:
+            btn_b: Flag for back button mouseover.
+        """
+        # Create and draw panel
+        panel = pygame.Surface((300, 500))
+        panel.fill((127, 127, 127))
+        pygame.draw.rect(panel, (65, 65, 65), panel.get_rect(), 3)
+
+        # Draw title
+        msg = FONT_L.render("LEADER BOARD", True, (255, 255, 255))
         msg_rect = msg.get_rect()
         msg_rect.center = (150, 30)
         panel.blit(msg, msg_rect)
 
+        # Create and draw subpanel to display scores
         sub_panel = pygame.Surface((240, 385))
         r = pygame.Rect((0, 0), (240, 35))
         for i in range(11):
             if i % 2 == 0:
-                sub_panel.fill((240,240,240), r)
+                sub_panel.fill((240, 240, 240), r)
             else:
-                sub_panel.fill((190,190,190), r)
+                sub_panel.fill((190, 190, 190), r)
             try:
-                msg = FONT_S.render(self.master.scores[i][1], True, (0,0,0))
+                msg = FONT_S.render(self.master.scores[i][1], True, (0, 0, 0))
                 msg_rect = msg.get_rect()
                 msg_rect.centerx = 60
                 msg_rect.centery = r.centery
                 sub_panel.blit(msg, msg_rect)
 
-                msg = FONT_S.render(str(self.master.scores[i][0]), True, (0,0,0))
+                msg = FONT_S.render(str(self.master.scores[i][0]), True, (0, 0, 0))
                 msg_rect = msg.get_rect()
                 msg_rect.centerx = 180
                 msg_rect.centery = r.centery
                 sub_panel.blit(msg, msg_rect)
             except IndexError:
+                # There are less than 11 saved scores, but we continue the loop
+                # and draw blank spaces
                 pass
             r.top += 35
         pygame.draw.rect(sub_panel, (65, 65, 65), sub_panel.get_rect(), 2)
@@ -982,47 +1049,56 @@ class LeaderBoardState(object):
         sub_panel_rect.topleft = (30, 65)
         panel.blit(sub_panel, sub_panel_rect)
 
+        # Draw back button
         btn_back = pygame.Surface((115, 30))
-        msgSurfObj = None
         if btn_b:
-            btn_back.fill((0,0,0))
-            pygame.draw.rect(btn_back, (65, 65, 65), (3,3, 109, 24), 1)
-            msgSurfObj = FONT_S.render("BACK", True,
-                                       (255,255,255))
+            btn_back.fill((0, 0, 0))
+            pygame.draw.rect(btn_back, (65, 65, 65), (3, 3, 109, 24), 1)
+            lbl_back = FONT_S.render("BACK", True,
+                                       (255, 255, 255))
         else:
             btn_back.fill((255, 255, 255))
-            pygame.draw.rect(btn_back, (190, 190, 190), (3,3, 109, 24), 1)
-            msgSurfObj = FONT_S.render("BACK", True,
-                                       (0,0,0))
+            pygame.draw.rect(btn_back, (190, 190, 190), (3, 3, 109, 24), 1)
+            lbl_back = FONT_S.render("BACK", True,
+                                       (0, 0, 0))
 
-        msgRectObj = msgSurfObj.get_rect()
-        msgRectObj.center = btn_back.get_rect().center
-        btn_back.blit(msgSurfObj, msgRectObj)
+        rect_lbl_back = lbl_back.get_rect()
+        rect_lbl_back.center = btn_back.get_rect().center
+        btn_back.blit(lbl_back, rect_lbl_back)
 
-        btn_back_rect = btn_back.get_rect()
-        btn_back_rect.center = (150, 473)
-        panel.blit(btn_back, btn_back_rect)
+        rect_back = btn_back.get_rect()
+        rect_back.center = (150, 473)
+        panel.blit(btn_back, rect_back)
 
         return panel.convert()
-        
+
     def enter(self, prev):
+        """Handles state entry
+
+        Args:
+            prev: Previous state
+        """
         self.active = True
         self.prev = prev
 
     def update(self):
+        """Handles state update"""
         if self.active:
-            btn_back_rect = pygame.Rect((0,0), (115, 30))
-            btn_back_rect.center = (187, 473+50)
+            # Set Rect for back button and check for mouseover
+            btn_back_rect = pygame.Rect((0, 0), (115, 30))
+            btn_back_rect.center = (187, 473 + 50)
             btn_back_active = btn_back_rect.collidepoint(pygame.mouse.get_pos())
-            
+
+            # Draw background
+            screen.blit(backgroundObj, (0, 0))
+
+            # Get and draw panel
             panel = self.get_panel(btn_back_active)
-            
             panel_rect = panel.get_rect()
             panel_rect.center = (187, 300)
-
-            screen.blit(backgroundObj, (0,0))
             screen.blit(panel, panel_rect)
 
+            # Check for mouse click and go to previous state
             if btn_back_active and pygame.mouse.get_pressed()[0]:
                 if self.prev:
                     if type(self.prev) == SaveScoreState:
@@ -1031,46 +1107,74 @@ class LeaderBoardState(object):
                         self.master.goto(self.prev)
 
         else:
-            self.enter(self.prev)
+            self.enter(self.prev) # State entry is incomplete
 
     def leave(self, state):
+        """Handles state exit
+        Args:
+            state: Next state
+        """
         self.active = False
         self.master._enter(state)
-            
+
 
 class PlayingState(object):
+    """Handles the game logic and graphics
 
+    Attributes:
+        master: the attached GameManager instance.
+        name: "MainMenu"
+        active: Flag indicating whether the state is active
+        timer: Counts ticks for animations (Currently unused)
+        prev: The previous state
+    """
     def __init__(self, master):
+        """Inits PlayingState"""
         self.master = master
-        self.prev = None
         self.name = "PLAYING"
         self.active = False
+        self.prev = None
 
     def drawlives(self, n):
+        """Draws 'live' icons in upper right corner
+
+        Args:
+            n: Number of 'lives' to draw
+        """
         r = pygame.Rect((0, 0), (28, 28))
-        r.right = WIDTH-2
+        r.right = WIDTH - 2
         r.centery = 18
         for i in range(n):
             screen.blit(heartSprite, r)
             r.left -= 28
 
     def enter(self, prev):
+        """Handles state entry
+
+        Args:
+            prev: Previous state.
+        """
         self.prev = prev
-        pygame.time.wait(250)
-        self.master.highscore = self.master.getHighScore()
+        # TODO Remove once Escape key uses KEYDOWN event
+        pygame.time.wait(250) # A messy solution to Escape key handling
+        self.master.highscore = self.master.get_highscore()
         self.active = True
 
     def update(self):
+        """Handles game execution"""
         if self.active:
             # Asteroid generation
             if self.master.newroid == 0:
-                Asteroid(self.master, random.randint(0, 14)*25, random.randint(-5,5), random.randint(2,8))
+                Asteroid(self.master, random.randint(0, 14) * 25, random.randint(-5, 5), random.randint(2, 8))
                 self.master.newroid = self.master.roidrate
 
-            keys = pygame.key.get_pressed()
             # Keybindings
-            if keys[K_ESCAPE]:
+            keys = pygame.key.get_pressed()
+            if keys[K_ESCAPE]: # TODO Change this to use KEYDOWN event
                 self.master.goto(self.master.pausestate)
+
+            # Debugging keys
+            # TODO Remove these for final release
             if keys[K_UP]:
                 self.master.roidrate /= 2
                 if self.master.roidrate < 10:
@@ -1081,18 +1185,20 @@ class PlayingState(object):
                 self.master.goto(self.master.gameoverstate)
 
             # Player movement
-            if  keys[K_LEFT] or keys[K_a]:
-                self.master.player.move(-PLAYER_MOVE_SPEED,0)
+            if keys[K_LEFT] or keys[K_a]:
+                self.master.player.move(-PLAYER_MOVE_SPEED, 0)
             if keys[K_RIGHT] or keys[K_d]:
                 self.master.player.move(PLAYER_MOVE_SPEED, 0)
 
+            # Gun control
             if keys[K_SPACE] or keys[K_f]:
-               self.master.player.fire()
+                self.master.player.fire()
 
             # Draw background
-            screen.blit(backgroundObj, (0,0))
+            screen.blit(backgroundObj, (0, 0))
 
             # Update and draw entities
+            # Order is important for layering!
             for b in self.master.bolts:
                 b.update()
             for a in self.master.roids:
@@ -1102,11 +1208,11 @@ class PlayingState(object):
             self.master.player.update()
 
             # Render points
-            msgSurfObj = FONT_M.render("SCORE: " + str(self.master.points), True, (255,255,255))
-            msgRectObj = msgSurfObj.get_rect()
-            msgRectObj.left = 3
-            msgRectObj.top = 0
-            screen.blit(msgSurfObj, msgRectObj)
+            lbl_score = FONT_M.render("SCORE: " + str(self.master.points), True, (255, 255, 255))
+            rect_lbl_score = lbl_score.get_rect()
+            rect_lbl_score.left = 3
+            rect_lbl_score.top = 0
+            screen.blit(lbl_score, rect_lbl_score)
 
             # Render lives
             lives = self.master.player.lives
@@ -1119,15 +1225,37 @@ class PlayingState(object):
             self.master.newroid = max(self.master.newroid - fpsClock.get_time(), 0)
 
     def leave(self, state):
+        """Handles state exit
+
+        Args:
+            state: Next state.
+        """
         self.active = False
         self.master._enter(state)
 
 
 class GameManager(object):
-    OPENING = 0
-    GAMEPLAY = 1
-    GAMEOVER = 2
+    """Coordinates the whole game
+
+    Manages state transitions, stores game variables, and handles
+    loading/saving of data.
+
+    Attributes:
+        points: Current score
+        bolts: Stores Bolt instances
+        roids: Stores Asteroid instances
+        player: The current instance of Player
+        scores: Lists all saved scores as tuple (int score, str name)
+        highscore: Current highscore
+        newroid: Countdown to new asteroid generation
+        roidrate: Frequency of new asteroid generation
+    """
+
     def __init__(self):
+        """Inits GameManager
+
+        Instantiates all states and player. Loads saved scores.
+        """
         self.points = 0
         self.bolts = []
         self.roids = []
@@ -1142,64 +1270,107 @@ class GameManager(object):
 
         self.player = Player(self)
         self.scores = []
-        self.loadscores()
-        self.highscore = self.getHighScore()
+        self.load_scores()
+        self.highscore = self.get_highscore()
         self.newroid = 0
-        self.roidrate = 1000 # New asteroid every 1000 milliseconds
+        self.roidrate = 1000  # New asteroid every 1000 milliseconds
 
         self._state = None
         self._enter(self.openingstate)
 
-    def loadscores(self):
+    def load_scores(self):
+        """Loads scores from /user_scores.txt"""
         self.scores = []
         with open("user_scores.txt", 'r') as f:
             lines = f.readlines()
             for l in lines:
-                    l = l.split(',')
-                    try:
-                        self.scores.append((int(l[0]), l[1].strip('\n')))
-                    except:
-                        break
+                l = l.split(',')
+                try:
+                    self.scores.append((int(l[0]), l[1].strip('\n')))
+                except:
+                    break
 
-    def savenewscore(self, score, name):
+    def save_new_score(self, score, name):
+        """Saves scores
+
+        Called by SaveScoreState. Scores are saved in order from
+        highest to lowest.
+
+        Args:
+            score: The new score to save
+            name: Name of player who earned the score
+        """
         self.scores.append((score, name))
         self.scores.sort(key=lambda t: t[0], reverse=True)
 
         with open("user_scores.txt", 'w') as f:
             for l in self.scores:
-                f.write(str(l[0])+','+l[1]+'\n')
+                f.write(str(l[0]) + ',' + l[1] + '\n')
 
-    def getHighScore(self):
+    def get_highscore(self):
+        """Returns current highscore"""
         if self.scores:
             return self.scores[0][0]
         else:
             return 0
 
     def update(self):
+        """Calls the current states update function"""
         if self._state:
             self._state.update()
 
     def get_state(self):
+        """Returns the name of the current state"""
         return self._state.name
-    
+
     def goto(self, state):
+        """Tells the current state to exit and go to the next state
+
+        Args:
+            state: Next state.
+        """
         self._state.leave(state)
-        
+
     def _enter(self, state):
+        """Enters a new state without leaving the current state
+
+        Should only be called from a states 'leave' method.
+
+        Args:
+            state: The state to go to.
+        """
         prev = self._state
         self._state = state
         self._state.enter(prev)
-        
+
 
 class Player(object):
-    def __init__(self, gm):
-        self.gm = gm
-        self.rect = pygame.Rect(150,513, 75, 75)
+    """Handles player movement and stores player variables
+
+    Attributes:
+        master: The attached GameManager instance
+        rect: Stores the player's Rect for position and collisions
+        lives: Remaining lives
+        can_fire: Countdown until the player can fire a bolt again
+        explode: Timer for explosion animation
+    """
+    def __init__(self, master):
+        """Inits the player"""
+        self.master = master
+        self.rect = pygame.Rect(150, 513, 75, 75)
         self.lives = 3
-        self.canfire = 0
+        self.can_fire = 0
         self.explode = False
 
     def move(self, x, y):
+        """Moves the player by specified offset
+
+        Checks for collisions with the edge of the window.
+
+        Args:
+            x: Offset in the x direction
+            y: Offset in the y direction
+        """
         self.rect = self.rect.move(x, y)
         if self.rect.centerx < 0:
             self.rect.centerx = 0
@@ -1207,56 +1378,90 @@ class Player(object):
             self.rect.centerx = WIDTH
 
     def fire(self):
-        if self.canfire == 0:
-            Bolt(self.gm, self.rect.centerx - 18, self.rect.top - 25)
-            self.canfire = 3
+        """Fires a new Bolt instance"""
+        if self.can_fire == 0:
+            Bolt(self.master, self.rect.centerx - 18, self.rect.top - 25)
+            self.can_fire = 3
 
     def update(self):
-        self.canfire = max(self.canfire-1, 0)
+        """Handles drawing"""
+        self.can_fire = max(self.can_fire - 1, 0)
         self.draw()
         if self.explode:
             dt = pygame.time.get_ticks() - self.explode
-            pygame.draw.circle(screen, (255,127,31), self.rect.center, dt/2)
+            pygame.draw.circle(screen, (255, 127, 31), self.rect.center, dt / 2)
             if dt > 100:
                 self.explode = False
-                self.gm.goto(self.gm.gameoverstate)
+                self.master.goto(self.master.gameoverstate)
 
     def draw(self):
+        """Draws Player sprite animation"""
         if pygame.time.get_ticks() % 200 < 100:
             screen.blit(playerSprite1, self.rect.topleft)
         else:
             screen.blit(playerSprite2, self.rect.topleft)
-        
+
 
 class Bolt(object):
-    def __init__(self, gm, x, y):
+    """Handles Bolt movement
+
+    Attributes:
+        master: The attached GameManager instance
+        rect: Bolt Rect for position and collisions
+        id: Index in master.bolts
+    """
+    def __init__(self, master, x, y):
+        """Inits Bolt and adds reference to master.bolts"""
+        self.master = master
         self.rect = pygame.Rect(x, y, 10, 30)
-        self.id = len(gm.bolts)
-        self.gm = gm
-        gm.bolts.append(self)
-        
+        self.id = len(master.bolts)
+        self.master.bolts.append(self)
+
     def update(self):
-        self.rect = self.rect.move(0,-25)
+        """Handles movement and drawing"""
+        self.rect = self.rect.move(0, -25)
         if self.rect.bottom < 0:
-            self.gm.bolts.remove(self)
+            self.master.bolts.remove(self)
         self.draw()
 
     def draw(self):
+        """Draws the bolt sprite"""
         screen.blit(boltSprite1, self.rect.topleft)
 
+
 class Asteroid(object):
-    def __init__(self, gm, x, velx=0, vely=5):
-        self.gm = gm
+    """Handles asteroid movement and collisions
+
+    Attributes:
+        master: The attached GameManager instance
+        rect: The Asteroid rect for position and collisions
+        velx: Velocity in the x direction
+        vely: Velocity in the  y direction
+        explode: Timer for explosion animations
+    """
+    def __init__(self, master, x, velx=0, vely=5):
+        """Inits Asteroid
+
+        Chooses a sprite at random from ASTEROID_SPRITES.
+
+        Args:
+            x: The x coordinate
+            velx: Initial velocity in the x direction
+            vely: Initial velocity in the y direction (Default: 5)
+        """
+        self.master = master
         self.rect = pygame.Rect(x, -25, 25, 25)
         self.velx = velx
         self.vely = vely
-        
-        self._sprite = ASTEROID_SPRITES[random.randint(0, len(ASTEROID_SPRITES)-1)]
 
-        gm.roids.append(self)
+        self._sprite = ASTEROID_SPRITES[random.randint(0, len(ASTEROID_SPRITES) - 1)]
+
+        self.master.roids.append(self)
         self.explode = False
 
+    # TODO Move collision handling to PlayingState
     def update(self):
+        """Handles asteroid movement and collisions"""
         self.rect = self.rect.move(self.velx, self.vely)
         if self.rect.left < 0:
             self.rect.left = 0
@@ -1264,48 +1469,53 @@ class Asteroid(object):
         if self.rect.right > WIDTH:
             self.rect.right = WIDTH
             self.velx = -self.velx
-            
-        if self.rect.top > HEIGHT:
-            self.gm.roids.remove(self)
-            self.gm.goto(self.gm.gameoverstate)
 
-        for e in self.gm.bolts + self.gm.roids + [self.gm.player]:
+        if self.rect.top > HEIGHT:
+            self.master.roids.remove(self)
+            self.master.goto(self.master.gameoverstate)
+
+        for e in self.master.bolts + self.master.roids + [self.master.player]:
             if type(e) == Bolt:
                 if self.rect.colliderect(e.rect) and not self.explode:
                     self.explode = pygame.time.get_ticks()
-                    self.gm.bolts.remove(e)
-                    self.gm.points += 5
+                    self.master.bolts.remove(e)
+                    self.master.points += 5
             elif type(e) == Asteroid and e != self and not self.explode:
                 if self.rect.colliderect(e.rect):
                     # TODO Fix Choppiness
                     self.velx = -self.velx
                     e.velx = -e.velx
-                    overlap = (self.rect.centerx-e.rect.centerx)/2
+                    overlap = (self.rect.centerx - e.rect.centerx) / 2
                     e.rect.centerx -= overlap
                     self.rect.centerx += overlap
             elif type(e) == Player:
                 if self.rect.colliderect(e.rect) and not self.explode:
                     self.explode = pygame.time.get_ticks()
                     self.vely = -self.vely
-                    self.gm.player.lives -= 1
+                    self.master.player.lives -= 1
 
         self.draw()
 
     def draw(self):
+        """Draws sprite and iff self.explode, draws the explosion animation
+
+        Deletes reference from self.master.roids upon completion of explosion.
+        """
         screen.blit(self._sprite, self.rect)
-            
+
         if self.explode:
-            t = pygame.time.get_ticks() - self.explode
-            pygame.draw.circle(screen, (255,255,255), self.rect.center, t/2)
-            if t > 50:
+            dt = pygame.time.get_ticks() - self.explode
+            pygame.draw.circle(screen, (255, 255, 255), self.rect.center, dt / 2)
+            if dt > 50:
                 self.explode = False
-                self.gm.roids.remove(self)
-        
+                self.master.roids.remove(self)
+
+
 manager = GameManager()
 
 # Mainloop
 while True:
-    
+
     manager.update()
 
     for event in pygame.event.get():
