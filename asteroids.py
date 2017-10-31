@@ -675,6 +675,38 @@ class PauseState(object):
 
         return panel.convert()
 
+    def draw_entry(self, dt):
+        """Draws entry animation"""
+        # Draw background
+        screen.blit(backgroundObj, (0, 0))
+
+        # Do animation
+        panel = self.get_panel()
+
+        if dt < 250:
+            panel = pygame.transform.rotozoom(panel, 0, dt / 250)
+            panel_rect = panel.get_rect()
+            panel_rect.center = (187, 300)
+            screen.blit(panel, panel_rect)
+        else:
+            panel_rect = panel.get_rect()
+            panel_rect.center = (187, 300)
+            screen.blit(panel, panel_rect)
+
+    def draw_exit(self, dt):
+        """Draws exit animation"""
+        # Draw background
+        screen.blit(backgroundObj, (0, 0))
+
+        # Do animation
+        panel = self.get_panel()
+        if dt < 250:
+            panel = pygame.transform.rotozoom(panel, 0, (250 - dt) / 250)
+            panel_rect = panel.get_rect()
+            panel_rect.center = (187, 300)
+            screen.blit(panel, panel_rect)
+
+
     def enter(self, prev):
         """Handles state entry
 
@@ -686,24 +718,11 @@ class PauseState(object):
             self.timer = pygame.time.get_ticks()
         dt = float(pygame.time.get_ticks() - self.timer)
 
-        # Draw background
-        screen.blit(backgroundObj, (0, 0))
-
-        # Do animation
-        panel = self.get_panel()
-        if dt < 250:
-            panel = pygame.transform.rotozoom(panel, 0, dt / 250)
-            panel_rect = panel.get_rect()
-            panel_rect.center = (187, 300)
-            screen.blit(panel, panel_rect)
-        # State entry complete
-        else:
-            panel_rect = panel.get_rect()
-            panel_rect.center = (187, 300)
-            screen.blit(panel, panel_rect)
-
+        if dt > 250:
             self.active = True
             self.timer = False
+        else:
+            self.draw_entry(dt)
 
     def update(self):
         """Handles state update"""
@@ -760,23 +779,14 @@ class PauseState(object):
                 self.timer = pygame.time.get_ticks()
             dt = float(pygame.time.get_ticks() - self.timer)
 
-            # Draw background
-            screen.blit(backgroundObj, (0, 0))
-
-            # Do animation
-            panel = self.get_panel()
-            if dt < 250:
-                panel = pygame.transform.rotozoom(panel, 0, (250 - dt) / 250)
-                panel_rect = panel.get_rect()
-                panel_rect.center = (187, 300)
-                screen.blit(panel, panel_rect)
-            # State exit complete, go to next state
-            else:
+            if dt > 250:
                 self.leaving = False
                 self._nextstate = False
                 self.active = False
                 self.timer = False
                 self.master._enter(state)
+            else:
+                self.draw_exit(dt)
 
 
 class Input(object):
