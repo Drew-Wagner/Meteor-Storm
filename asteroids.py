@@ -94,6 +94,7 @@ class OpeningState(object):
         self.timer = False
         self.prev = None
 
+    # noinspection PyMethodMayBeStatic
     def draw(self, dt):
         """Draws the opening animation"""
         # Begin drawing animation
@@ -139,7 +140,6 @@ class OpeningState(object):
         else:
             self.draw(dt)
 
-
     def update(self):
         """State update"""
         if self.active:
@@ -147,6 +147,7 @@ class OpeningState(object):
         else:  # State entry is not complete
             self.enter(self.prev)
 
+    # noinspection PyProtectedMember
     def leave(self, state):
         """State exit
 
@@ -154,6 +155,7 @@ class OpeningState(object):
             state: Next state
         """
         self.active = False
+        # noinspection PyProtectedMember
         self.master._enter(state)
 
 
@@ -183,6 +185,7 @@ class MainMenuState(object):
         self.timer = False
         self.prev = None
 
+    # noinspection PyMethodMayBeStatic
     def black(self):
         """Returns Overlay from opening scene for fade-out"""
         black = pygame.Surface((WIDTH, HEIGHT))
@@ -257,7 +260,6 @@ class MainMenuState(object):
 
         # Draw Leaderboard button
         btn_lead = pygame.Surface((300, 50))
-        msgSurfObj = None
         if btn_l:
             btn_lead.fill((0, 0, 0))
             pygame.draw.rect(btn_lead, (65, 65, 65), (6, 6, 288, 38), 2)
@@ -371,6 +373,7 @@ class MainMenuState(object):
             state: Next state.
         """
         self.active = False
+        # noinspection PyProtectedMember
         self.master._enter(state)
 
 
@@ -586,6 +589,7 @@ class GameOverState(object):
         self.master.points = 0
         self.master.player.lives = 3
         self.active = False
+        # noinspection PyProtectedMember
         self.master._enter(state)
 
 
@@ -611,6 +615,7 @@ class PauseState(object):
         self.leaving = False
         self._nextstate = None
 
+    # noinspection PyMethodMayBeStatic
     def get_panel(self, btn_res=False, btn_mm=False):
         """Returns surface for pause screen panel
 
@@ -706,7 +711,6 @@ class PauseState(object):
             panel_rect.center = (187, 300)
             screen.blit(panel, panel_rect)
 
-
     def enter(self, prev):
         """Handles state entry
 
@@ -784,6 +788,7 @@ class PauseState(object):
                 self._nextstate = False
                 self.active = False
                 self.timer = False
+                # noinspection PyProtectedMember
                 self.master._enter(state)
             else:
                 self.draw_exit(dt)
@@ -902,15 +907,17 @@ class Input(object):
 
 
 class SaveScoreState(object):
+    # noinspection PyUnresolvedReferences
     """Handles save score interface
 
-    Attributes:
-        master: the attached GameManager instance.
-        name: "SAVESCORE"
-        active: Flag indicating whether the state is active
-        timer: Counts ticks for animations
-        prev: The previous state
-    """
+        Attributes:
+            master: the attached GameManager instance.
+            name: "SAVESCORE"
+            active: Flag indicating whether the state is active
+            timer: Counts ticks for animations (Currently unused)
+            prev: The previous state
+        """
+
     def __init__(self, master):
         """Inits SaveScoreState"""
         self.master = master
@@ -933,7 +940,7 @@ class SaveScoreState(object):
 
         # Draw title
         lbl_save = FONT_M.render("SAVE SCORE", True,
-                                (255, 255, 255))
+                                 (255, 255, 255))
         rect_lbl_save = lbl_save.get_rect()
         rect_lbl_save.center = (150, 30)
         panel.blit(lbl_save, rect_lbl_save)
@@ -944,12 +951,12 @@ class SaveScoreState(object):
             btn_save.fill((0, 0, 0))
             pygame.draw.rect(btn_save, (65, 65, 65), (3, 3, 109, 24), 1)
             lbl_save = FONT_S.render("SAVE", True,
-                                       (255, 255, 255))
+                                     (255, 255, 255))
         else:
             btn_save.fill((255, 255, 255))
             pygame.draw.rect(btn_save, (190, 190, 190), (3, 3, 109, 24), 1)
             lbl_save = FONT_S.render("SAVE", True,
-                                       (0, 0, 0))
+                                     (0, 0, 0))
 
         rect_lbl_save = lbl_save.get_rect()
         rect_lbl_save.center = btn_save.get_rect().center
@@ -1012,6 +1019,7 @@ class SaveScoreState(object):
             state: Next state.
         """
         self.active = False
+        # noinspection PyProtectedMember
         self.master._enter(state)
 
 
@@ -1026,6 +1034,7 @@ class LeaderBoardState(object):
         timer: Counts ticks for animations
         prev: The previous state
     """
+
     def __init__(self, master):
         """Inits LeaderBoardState"""
         self.master = master
@@ -1087,12 +1096,12 @@ class LeaderBoardState(object):
             btn_back.fill((0, 0, 0))
             pygame.draw.rect(btn_back, (65, 65, 65), (3, 3, 109, 24), 1)
             lbl_back = FONT_S.render("BACK", True,
-                                       (255, 255, 255))
+                                     (255, 255, 255))
         else:
             btn_back.fill((255, 255, 255))
             pygame.draw.rect(btn_back, (190, 190, 190), (3, 3, 109, 24), 1)
             lbl_back = FONT_S.render("BACK", True,
-                                       (0, 0, 0))
+                                     (0, 0, 0))
 
         rect_lbl_back = lbl_back.get_rect()
         rect_lbl_back.center = btn_back.get_rect().center
@@ -1139,7 +1148,7 @@ class LeaderBoardState(object):
                         self.master.goto(self.prev)
 
         else:
-            self.enter(self.prev) # State entry is incomplete
+            self.enter(self.prev)  # State entry is incomplete
 
     def leave(self, state):
         """Handles state exit
@@ -1147,9 +1156,11 @@ class LeaderBoardState(object):
             state: Next state
         """
         self.active = False
+        # noinspection PyProtectedMember
         self.master._enter(state)
 
 
+# noinspection PyUnresolvedReferences
 class PlayingState(object):
     """Handles the game logic and graphics
 
@@ -1160,6 +1171,7 @@ class PlayingState(object):
         timer: Counts ticks for animations (Currently unused)
         prev: The previous state
     """
+
     def __init__(self, master):
         """Inits PlayingState"""
         self.master = master
@@ -1167,6 +1179,7 @@ class PlayingState(object):
         self.active = False
         self.prev = None
 
+    # noinspection PyMethodMayBeStatic
     def draw_lives(self, n):
         """Draws 'live' icons in upper right corner
 
@@ -1249,7 +1262,7 @@ class PlayingState(object):
                             a.velx = -a.velx
                             a2.velx = -a2.velx
 
-                            offset = (a.rect.centerx-a2.rect.centerx)/2 + 1
+                            offset = (a.rect.centerx - a2.rect.centerx) / 2 + 1
                             a.rect.centerx += offset
                             a2.rect.centerx -= offset
 
@@ -1290,6 +1303,7 @@ class PlayingState(object):
             state: Next state.
         """
         self.active = False
+        # noinspection PyProtectedMember
         self.master._enter(state)
 
 
@@ -1337,16 +1351,18 @@ class GameManager(object):
         self._state = None
         self._enter(self.openingstate)
 
+    # noinspection PyBroadException
     def load_scores(self):
         """Loads scores from /user_scores.txt"""
         self.scores = []
         with open("user_scores.txt", 'r') as f:
             lines = f.readlines()
-            for l in lines:
-                l = l.split(',')
+            for L in lines:
+                L = L.split(',')
+                # noinspection PyPep8
                 try:
-                    self.scores.append((int(l[0]), l[1].strip('\n')))
-                except:
+                    self.scores.append((int(L[0]), L[1].strip('\n')))
+                except Exception:
                     break
 
     def save_new_score(self, score, name):
@@ -1413,6 +1429,7 @@ class Player(object):
         can_fire: Countdown until the player can fire a bolt again
         explode: Timer for explosion animation
     """
+
     def __init__(self, master):
         """Inits the player"""
         self.master = master
@@ -1452,7 +1469,7 @@ class Player(object):
     def draw(self):
         """Draws Player sprite animation"""
         if not self.explode:
-            r = (self.rect.left, self.rect.top-25)
+            r = (self.rect.left, self.rect.top - 25)
             if pygame.time.get_ticks() % 200 < 100:
                 screen.blit(playerSprite1, r)
             else:
@@ -1471,6 +1488,7 @@ class Bolt(object):
         rect: Bolt Rect for position and collisions
         id: Index in master.bolts
     """
+
     def __init__(self, master, x, y):
         """Inits Bolt and adds reference to master.bolts"""
         self.master = master
@@ -1500,6 +1518,7 @@ class Asteroid(object):
         vely: Velocity in the  y direction
         explode: Timer for explosion animations
     """
+
     def __init__(self, master, x, velx=0, vely=5):
         """Inits Asteroid
 
